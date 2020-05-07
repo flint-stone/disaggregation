@@ -241,7 +241,9 @@ static void rmem_request(struct request_queue *q)
 			// blk_fs_request() was removed in 2.6.36 - many thanks to
 			// Christian Paro for the heads up and fix...
 			//if (!blk_fs_request(req)) {
-			if (req == NULL || (req->cmd_type != REQ_TYPE_FS)) {
+			//if (req == NULL || (req->cmd_type != REQ_TYPE_FS)) {
+			//https://groups.google.com/forum/#!topic/linux.kernel/HQ-r5oxiIp0
+			if (req == NULL || !blk_rq_is_passthrough(req)){
 				printk (KERN_NOTICE "Skip non-CMD request\n");
 				__blk_end_request_all(req, -EIO);
 				continue;

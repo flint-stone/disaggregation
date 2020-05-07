@@ -1,2 +1,3 @@
-/root/disaggregation/rmem/rmem.ko
-/root/disaggregation/rmem/rmem.o
+/mydata/lexu/disaggregation/rmem/rmem.ko
+/mydata/lexu/disaggregation/rmem/rmem.o
+

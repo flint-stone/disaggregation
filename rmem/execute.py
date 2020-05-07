@@ -1277,13 +1277,13 @@ def install_all():
 def prepare_env():
   slaves_run("mkdir -p /mydata/lexu/disaggregation/rmem/.remote_commands")
   #stop_tachyon()
-  turn_off_os_swap()
+  #turn_off_os_swap()
   sync_rmem_code()
-  update_hadoop_conf()
-  mkfs_xvdc_ext4()
-  run("mkdir -p /mnt/local_commands")
-  reconfig_hdfs()
-  run("echo 1 > /mnt/env_prepared")
+  #update_hadoop_conf()
+  #mkfs_xvdc_ext4()
+  #run("mkdir -p /mnt/local_commands")
+  #reconfig_hdfs()
+  #run("echo 1 > /mnt/env_prepared")
 
 def clear_all_data():
   run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr \"/*\"") #spark and hadoop
