@@ -15,17 +15,17 @@ def run_and_get(cmd):
   return commands.getstatusoutput(cmd)
 
 def get_master():
-  with open('/root/spark-ec2/masters', 'r') as content_file:
+  with open('/mydata/lexu/spark-ec2/masters', 'r') as content_file:
       master = content_file.read().replace("\n","")
   return master
 
 def log(msg, level = 0):
-  f = open("/root/disaggregation/rmem/execute.py.log%s" % ("" if level == 0 else str(level)), "a")
+  f = open("/mydata/lexu/disaggregation/rmem/execute.py.log%s" % ("" if level == 0 else str(level)), "a")
   f.write(msg + "\n")
   f.close()
 
 def get_slaves():
-  return [line.rstrip('\n') for line in open('/root/spark-ec2/slaves')]
+  return [line.rstrip('\n') for line in open('/mydata/lexu/spark-ec2/slaves')]
 
 def scp_from(remote_file, local_file, remote_machine):
   scp_cmd = "scp -q %s:%s %s" % (remote_machine, remote_file, local_file)
@@ -80,7 +80,7 @@ def all_run(cmd, background = False):
 
 def slaves_run_bash(cmd, silent = False, background = False):
   global bash_run_counter
-  f = open("/root/disaggregation/rmem/.cmd_temp.sh", "w")
+  f = open("/mydata/lexu/disaggregation/rmem/.cmd_temp.sh", "w")
   f.write(cmd)
   f.close()
 
@@ -89,9 +89,9 @@ def slaves_run_bash(cmd, silent = False, background = False):
 
   lines = get_slaves()
   for s in lines:
-    scp_to("/root/disaggregation/rmem/.cmd_temp.sh", "/root/disaggregation/rmem/.remote_commands/cmd_%d.sh" % bash_run_counter, s)
+    scp_to("/mydata/lexu/disaggregation/rmem/.cmd_temp.sh", "/mydata/lexu/disaggregation/rmem/.remote_commands/cmd_%d.sh" % bash_run_counter, s)
 
-    command = "ssh %s \"sh /root/disaggregation/rmem/.remote_commands/cmd_%d.sh%s%s\"" % (s, bash_run_counter, (" > /root/disaggregation/rmem/.remote_commands/cmd_" + str(bash_run_counter) + ".log 2>&1") if silent else "", " &" if background else "")
+    command = "ssh %s \"sh /mydata/lexu/disaggregation/rmem/.remote_commands/cmd_%d.sh%s%s\"" % (s, bash_run_counter, (" > /mydata/lexu/disaggregation/rmem/.remote_commands/cmd_" + str(bash_run_counter) + ".log 2>&1") if silent else "", " &" if background else "")
     print "#####Running cmd:" + command
     os.system(command)
 
