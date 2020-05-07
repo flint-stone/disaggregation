@@ -345,7 +345,8 @@ def sync_rmem_code():
 
 def mkfs_xvdc_ext4():
   dev = ""
-  devs = ["xvdc", "xvdf"]
+  #devs = ["xvdc", "xvdf"]
+  devs = ["sda2", "sda3"]
   for d in devs:
     if d in os.popen("ls /dev/%s" % d).read():
       dev = d
@@ -1278,9 +1279,9 @@ def prepare_env():
   slaves_run("mkdir -p /mydata/lexu/disaggregation/rmem/.remote_commands")
   #stop_tachyon()
   #turn_off_os_swap()
-  sync_rmem_code()
+  #sync_rmem_code()
   #update_hadoop_conf()
-  #mkfs_xvdc_ext4()
+  mkfs_xvdc_ext4()
   #run("mkdir -p /mnt/local_commands")
   #reconfig_hdfs()
   #run("echo 1 > /mnt/env_prepared")
