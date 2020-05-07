@@ -103,12 +103,12 @@ def clean_existing_rmem(bw_gbps):
   banner("exiting rmem")
   if bw_gbps == -1: #use disk
     close_rmem = '''
-      while [ -n "$(mount | grep /root/disaggregation/rmem/tmpfs)" ];
-        do umount /root/disaggregation/rmem/tmpfs;
+      while [ -n "$(mount | grep /mydata/lexu/disaggregation/rmem/tmpfs)" ];
+        do umount /mydata/lexu/disaggregation/rmem/tmpfs;
       done;
-      rmdir /root/disaggregation/rmem/tmpfs;
+      rmdir /mydata/lexu/disaggregation/rmem/tmpfs;
 
-      cd /root/disaggregation/rmem;
+      cd /mydata/lexu/disaggregation/rmem;
       while [ -n "$(cat /proc/swaps | grep /mnt2/swapdisk/swap)" ];
         do swapoff /mnt2/swapdisk/swap;
       done;
@@ -116,11 +116,11 @@ def clean_existing_rmem(bw_gbps):
     '''
   elif bw_gbps == -2: #use rdma
     close_rmem = '''
-      cd /root/srmem
+      cd /mydata/lexu/srmem
       ./exit_rmem_30g.sh'''
   else:
     close_rmem = '''
-      cd /root/disaggregation/rmem;
+      cd /mydata/lexu/disaggregation/rmem;
       while [ -n "$(cat /proc/swaps | grep /dev/rmem0)" ];
         do swapoff /dev/rmem0;
       done;
@@ -151,7 +151,7 @@ def setup_rmem(rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, slow
   if bw_gbps == -1: #use disk
     rmem_mb = int(rmem_gb * 1024)
     install_rmem = '''
-      cd /root/disaggregation/rmem
+      cd /mydata/lexu/disaggregation/rmem
       mkdir -p tmpfs
       mount -t tmpfs -o size=%dm tmpfs ./tmpfs/
       fallocate -l %dm ./tmpfs/a.img
@@ -166,10 +166,10 @@ def setup_rmem(rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, slow
     ''' % (rmem_mb, rmem_mb, rmem_mb)
     slaves_run_bash(install_rmem)
   elif bw_gbps == -2: #use rdma
-    slaves_run_parallel("cd /root/srmem; ./init_rmem_30g_with_npage.sh %d" % remote_page)
+    slaves_run_parallel("cd /mydata/lexu/srmem; ./init_rmem_30g_with_npage.sh %d" % remote_page)
   else:
     install_rmem = '''
-      cd /root/disaggregation/rmem
+      cd /mydata/lexu/disaggregation/rmem
 
       mkdir -p swap;
       insmod rmem.ko npages=%d get_record=%d;
@@ -191,8 +191,8 @@ def setup_rmem(rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, slow
       
     if slowdown_cdf != "":
       assert(os.path.exists(slowdown_cdf))
-      run("/root/spark-ec2/copy-dir /root/disaggregation/rmem/fcts")
-      slaves_run("cd /root/disaggregation/rmem; cat %s | python convert_fct_to_ns.py > fcts.txt ; cat fcts.txt | while read -r line; do echo \$line > /proc/rmem_cdf; done; diff /proc/rmem_cdf fcts.txt" % slowdown_cdf) 
+      run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/disaggregation/rmem/fcts")
+      slaves_run("cd /mydata/lexu/disaggregation/rmem; cat %s | python convert_fct_to_ns.py > fcts.txt ; cat fcts.txt | while read -r line; do echo \$line > /proc/rmem_cdf; done; diff /proc/rmem_cdf fcts.txt" % slowdown_cdf) 
 
 
 def dstat():
@@ -236,9 +236,9 @@ def log_trace():
   
     blktrace -a issue -d /dev/xvda1 /dev/xvdb /dev/xvdc -D . &
   
-    tcpdump -i eth0 2>&1 | python /root/disaggregation/rmem/tcpdump2flow.py > .nic &
+    tcpdump -i eth0 2>&1 | python /mydata/lexu/disaggregation/rmem/tcpdump2flow.py > .nic &
 
-    /root/disaggregation/rmem/fetch /proc/rmem_log /mnt2/rmem_log/rmem_dump &
+    /mydata/lexu/disaggregation/rmem/fetch /proc/rmem_log /mnt2/rmem_log/rmem_dump &
 
     pid=$(ps aux | grep fetch | grep -v grep | tr -s ' ' | cut -d ' ' -f 2)
     taskset -cp 6 $pid
@@ -249,7 +249,7 @@ def collect_trace(task):
   banner("collect trace")
   slaves_run("killall -SIGINT fetch;killall -SIGINT tcpdump;killall -SIGINT blktrace")
   time.sleep(25)
-  slaves_run_parallel("/root/disaggregation/rmem/parse /mnt2/rmem_log/rmem_dump /mnt2/rmem_log/rmem_log.txt")
+  slaves_run_parallel("/mydata/lexu/disaggregation/rmem/parse /mnt2/rmem_log/rmem_dump /mnt2/rmem_log/rmem_log.txt")
   
   result_dir = "/mnt2/results/%s_%s" % (task, run_and_get("date +%y%m%d%H%M%S")[1])
   run("mkdir -p %s" % result_dir)
@@ -340,8 +340,8 @@ def profile_io_end():
 
 def sync_rmem_code():
   banner("Sync rmem code")
-  run("cd /root/disaggregation/rmem; /root/spark-ec2/copy-dir .")
-  slaves_run("cd /root/disaggregation/rmem; make clean; make")
+  run("cd /mydata/lexu/disaggregation/rmem; /mydata/lexu/spark-ec2/copy-dir .")
+  slaves_run("cd /mydata/lexu/disaggregation/rmem; make clean; make")
 
 def mkfs_xvdc_ext4():
   dev = ""
@@ -367,7 +367,7 @@ def update_hadoop_conf():
     return elem
 
 
-  tree=etree.parse("/root/ephemeral-hdfs/conf/mapred-site.xml")
+  tree=etree.parse("/mydata/lexu/ephemeral-hdfs/conf/mapred-site.xml")
   root=tree.getroot()
   if "io.sort.mb" in etree.tostring(root):
     print "conf file is already updated"
@@ -382,7 +382,7 @@ def update_hadoop_conf():
   root.append(slowstart)
   root.append(iosort)
 
-  tree.write("/root/ephemeral-hdfs/conf/mapred-site.xml")
+  tree.write("/mydata/lexu/ephemeral-hdfs/conf/mapred-site.xml")
 
 memcached_kill_loadgen_on=False
 def memcached_kill_loadgen(deadline):
@@ -423,7 +423,7 @@ def mem_monitor_stop():
   return memmon_peak_remaining_ram
 
 def get_memcached_avg_latency():
-  r = run_and_get("cat /root/disaggregation/apps/memcached/results.txt | grep AverageLatency")[1]
+  r = run_and_get("cat /mydata/lexu/disaggregation/apps/memcached/results.txt | grep AverageLatency")[1]
   return float(r.replace("[GET] AverageLatency, ","").replace("us",""))
 
 def slaves_get_memcached_avg_latency():
@@ -431,13 +431,13 @@ def slaves_get_memcached_avg_latency():
   total_throughput = 0
   slaves = get_slaves()
   for s in slaves:
-    r = run_and_get("ssh %s \"cat /root/disaggregation/apps/memcached/results.txt | grep AverageLatency\"" % s)[1]
+    r = run_and_get("ssh %s \"cat /mydata/lexu/disaggregation/apps/memcached/results.txt | grep AverageLatency\"" % s)[1]
     v = r.replace("[GET] AverageLatency, ","")
     if "us" in v:
       total_latency += float(v.replace("us",""))
     elif "ms" in v:
       total_latency += float(v.replace("ms","")) * 1000
-    rt = run_and_get("ssh %s \"cat /root/disaggregation/apps/memcached/results.txt | grep Throughput\"" % s)[1]
+    rt = run_and_get("ssh %s \"cat /mydata/lexu/disaggregation/apps/memcached/results.txt | grep Throughput\"" % s)[1]
     vt = rt.replace("[OVERALL] Throughput(ops/sec), ", "")
     total_throughput += float(vt)
   return (total_latency / len(slaves), total_throughput / len(slaves))
@@ -617,58 +617,58 @@ def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, s
 
   banner("Running app")
   if task == "wordcount" or task == "terasort-spark":
-    run("/root/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresult")
+    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresult")
     app_start()
     if task == "wordcount":
-      run("/root/spark/bin/spark-submit --class \"WordCount\" --master \"spark://{0}:7077\" --conf \"spark.executor.memory={1}m\" --conf \"spark.cores.max={2}\" \"/root/disaggregation/apps/WordCount_spark/target/scala-2.10/simple-project_2.10-1.0.jar\" \"hdfs://{0}:9000/wiki/\" \"hdfs://{0}:9000/dfsresult\"".format(master, int(spark_mem * 1024), opts.spark_cores_max) )
+      run("/mydata/lexu/spark/bin/spark-submit --class \"WordCount\" --master \"spark://{0}:7077\" --conf \"spark.executor.memory={1}m\" --conf \"spark.cores.max={2}\" \"/mydata/lexu/disaggregation/apps/WordCount_spark/target/scala-2.10/simple-project_2.10-1.0.jar\" \"hdfs://{0}:9000/wiki/\" \"hdfs://{0}:9000/dfsresult\"".format(master, int(spark_mem * 1024), opts.spark_cores_max) )
     elif task == "terasort-spark":
-      run("/root/spark/bin/spark-submit --class \"TeraSort\" --master \"spark://%s:7077\" --conf \"spark.executor.memory=%sm\" --conf \"spark.cores.max=%s\" \"/root/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" \"/sortinput/\" \"/dfsresult\"" % (master, int(spark_mem * 1024), opts.spark_cores_max) )
+      run("/mydata/lexu/spark/bin/spark-submit --class \"TeraSort\" --master \"spark://%s:7077\" --conf \"spark.executor.memory=%sm\" --conf \"spark.cores.max=%s\" \"/mydata/lexu/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" \"/sortinput/\" \"/dfsresult\"" % (master, int(spark_mem * 1024), opts.spark_cores_max) )
     app_end()
 
   elif task == "bdb":
-    run("/root/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresults")
+    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresults")
     app_start() 
     query = get_bdb_query("3a") # 2a or 3a
-    run("/root/spark/bin/spark-submit --class \"SparkSql\" --master \"spark://{0}:7077\" --conf \"spark.executor.memory={1}m\" --conf \"spark.cores.max={2}\" \"/root/disaggregation/apps/Spark_Sql/target/scala-2.10/spark-sql_2.10-1.0.jar\" \"hdfs://{0}:9000/uservisits\" \"hdfs://{0}:9000/rankings\" \"hdfs://{0}:9000/dfsresults\" \"{3}\"".format(master, int(spark_mem * 1024), opts.spark_cores_max, query) )
+    run("/mydata/lexu/spark/bin/spark-submit --class \"SparkSql\" --master \"spark://{0}:7077\" --conf \"spark.executor.memory={1}m\" --conf \"spark.cores.max={2}\" \"/mydata/lexu/disaggregation/apps/Spark_Sql/target/scala-2.10/spark-sql_2.10-1.0.jar\" \"hdfs://{0}:9000/uservisits\" \"hdfs://{0}:9000/rankings\" \"hdfs://{0}:9000/dfsresults\" \"{3}\"".format(master, int(spark_mem * 1024), opts.spark_cores_max, query) )
     app_end()
 
   elif task == "terasort" or task == "wordcount-hadoop":
-    run("/root/ephemeral-hdfs/bin/start-mapred.sh")
-    run("/root/ephemeral-hdfs/bin/hadoop dfs -rmr /dfsresult")
+    run("/mydata/lexu/ephemeral-hdfs/bin/start-mapred.sh")
+    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /dfsresult")
     app_start()
     if task == "terasort":
-      run("/root/ephemeral-hdfs/bin/hadoop jar /root/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar terasort -Dmapred.map.tasks=20 -Dmapred.reduce.tasks=10 -Dmapreduce.map.java.opts=-Xmx25000 -Dmapreduce.reduce.java.opts=-Xmx25000 -Dmapreduce.map.memory.mb=26000 -Dmapreduce.reduce.memory.mb=26000 -Dmapred.reduce.slowstart.completed.maps=1.0 /sortinput /dfsresult")
+      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop jar /mydata/lexu/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar terasort -Dmapred.map.tasks=20 -Dmapred.reduce.tasks=10 -Dmapreduce.map.java.opts=-Xmx25000 -Dmapreduce.reduce.java.opts=-Xmx25000 -Dmapreduce.map.memory.mb=26000 -Dmapreduce.reduce.memory.mb=26000 -Dmapred.reduce.slowstart.completed.maps=1.0 /sortinput /dfsresult")
     else:
-      run("/root/ephemeral-hdfs/bin/hadoop jar /root/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar wordcount -Dmapred.map.tasks=10 -Dmapred.reduce.tasks=5 -Dmapreduce.map.java.opts=-Xmx8000 -Dmapreduce.reduce.java.opts=-Xmx7000 -Dmapreduce.map.memory.mb=8000 -Dmapreduce.reduce.memory.mb=7000 -Dmapred.reduce.slowstart.completed.maps=1.0 /wiki /dfsresult")
-    run("/root/ephemeral-hdfs/bin/stop-mapred.sh")
+      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop jar /mydata/lexu/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar wordcount -Dmapred.map.tasks=10 -Dmapred.reduce.tasks=5 -Dmapreduce.map.java.opts=-Xmx8000 -Dmapreduce.reduce.java.opts=-Xmx7000 -Dmapreduce.map.memory.mb=8000 -Dmapreduce.reduce.memory.mb=7000 -Dmapred.reduce.slowstart.completed.maps=1.0 /wiki /dfsresult")
+    run("/mydata/lexu/ephemeral-hdfs/bin/stop-mapred.sh")
     app_end()
-    run("/root/ephemeral-hdfs/bin/hadoop dfs -rmr /mnt")
-    run("/root/ephemeral-hdfs/bin/hadoop dfs -rmr /hadoopoutput")
+    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /mnt")
+    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /hadoopoutput")
     slaves_run("rm -rf /mnt/ephemeral-hdfs/taskTracker/root/jobcache/*; rm -rf /mnt2/ephemeral-hdfs/taskTracker/root/jobcache/*; rm -rf /mnt99/taskTracker/root/jobcache/*; rm -rf /mnt/ephemeral-hdfs/mapred/local/taskTracker/root/jobcache/*; rm -rf /mnt2/ephemeral-hdfs/mapred/local/taskTracker/root/jobcache/*;  rm -rf /mnt99/mapred/local/taskTracker/root/jobcache/*")
 
   elif task == "graphlab":
     all_run("rm -rf /mnt2/netflix_m/out")
     app_start()
-    run("mpiexec -n 5 -hostfile /root/spark-ec2/slaves /root/disaggregation/apps/collaborative_filtering/als --matrix /mnt2/netflix_m/ --max_iter=3 --ncpus=6 --minval=1 --maxval=5 --predictions=/mnt2/netflix_m/out/out")
+    run("mpiexec -n 5 -hostfile /mydata/lexu/spark-ec2/slaves /mydata/lexu/disaggregation/apps/collaborative_filtering/als --matrix /mnt2/netflix_m/ --max_iter=3 --ncpus=6 --minval=1 --maxval=5 --predictions=/mnt2/netflix_m/out/out")
     app_end()
 
   elif task == "memcached" or task == "memcached-local":
     app_start()
     slaves_run("memcached -d -m 26000 -u root")
     set_memcached_size(memcached_size)
-    run("/root/spark-ec2/copy-dir /root/disaggregation/apps/memcached/jars; /root/spark-ec2/copy-dir /root/disaggregation/apps/memcached/workloads")
+    run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/disaggregation/apps/memcached/jars; /mydata/lexu/spark-ec2/copy-dir /mydata/lexu/disaggregation/apps/memcached/workloads")
     thrd = threading.Thread(target=memcached_kill_loadgen, args=(time.time() + 25 * 60,))
     thrd.start()
     print "Loadgen started at %s" % time.strftime("%c")
-    slaves_run_parallel("cd /root/disaggregation/apps/memcached;java -cp jars/ycsb_local.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -load -P workloads/running")
+    slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb_local.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -load -P workloads/running")
     print "Loadgen finished at %s" % time.strftime("%c")
     memcached_kill_loadgen_on = False
     thrd.join()
-    all_run("rm /root/disaggregation/apps/memcached/results.txt")
+    all_run("rm /mydata/lexu/disaggregation/apps/memcached/results.txt")
     if task == "memcached":
-      slaves_run_parallel("cd /root/disaggregation/apps/memcached;java -cp jars/ycsb.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -t -P workloads/running")
+      slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -t -P workloads/running")
     elif task == "memcached-local":
-      slaves_run_parallel("cd /root/disaggregation/apps/memcached;java -cp jars/ycsb_local.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -t -P workloads/running")
+      slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb_local.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -t -P workloads/running")
 
     (result.memcached_latency_us, result.memcached_throughput) = slaves_get_memcached_avg_latency()
     slaves_run("killall memcached")
@@ -677,12 +677,12 @@ def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, s
   elif task == "storm":
     storm_start()
     time.sleep(10)
-    run("/root/apache-storm-0.9.5/bin/storm kill test")
+    run("/mydata/lexu/apache-storm-0.9.5/bin/storm kill test")
     time.sleep(90)
     app_start()
-    run("/root/apache-storm-0.9.5/bin/storm jar /root/disaggregation/apps/storm/storm-starter-topologies-0.9.5.jar storm.starter.WordCountTopology test")
+    run("/mydata/lexu/apache-storm-0.9.5/bin/storm jar /mydata/lexu/disaggregation/apps/storm/storm-starter-topologies-0.9.5.jar storm.starter.WordCountTopology test")
     time.sleep(1800)
-    run("/root/apache-storm-0.9.5/bin/storm kill test")
+    run("/mydata/lexu/apache-storm-0.9.5/bin/storm kill test")
     time.sleep(20)
     storm_stop()
     app_end()
@@ -728,15 +728,15 @@ def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, s
 def teragen(size):
   num_record = size * 1024 * 1024 * 1024 / 100
   master = get_master()
-  run("/root/ephemeral-hdfs/bin/start-mapred.sh")
-  run("/root/ephemeral-hdfs/bin/hadoop dfs -rmr /sortinput")
-  run("/root/ephemeral-hdfs/bin/hadoop jar /root/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar teragen -Dmapred.map.tasks=20 %d hdfs://%s:9000/sortinput" % (num_record, master))
-  run("/root/ephemeral-hdfs/bin/stop-mapred.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/start-mapred.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /sortinput")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop jar /mydata/lexu/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar teragen -Dmapred.map.tasks=20 %d hdfs://%s:9000/sortinput" % (num_record, master))
+  run("/mydata/lexu/ephemeral-hdfs/bin/stop-mapred.sh")
 
 def terasort_spark_prepare(size, input_dir = "sortinput"):
   master = get_master()
-  run("/root/ephemeral-hdfs/bin/hadoop dfs -rmr /sortinput")
-  run("/root/spark/bin/spark-submit --class \"TeraGen\" --master \"spark://%s:7077\" \"/root/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" %sg \"/%s\"" % (master, int(size), input_dir))
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /sortinput")
+  run("/mydata/lexu/spark/bin/spark-submit --class \"TeraGen\" --master \"spark://%s:7077\" \"/mydata/lexu/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" %sg \"/%s\"" % (master, int(size), input_dir))
 
 
 def terasort_vary_size(opts):
@@ -777,8 +777,8 @@ def terasort_vary_size(opts):
 
 def disk_vary_size(opts):
   if opts.task == "graphlab" or opts.task == "memcached":
-    run("/root/ephemeral-hdfs/bin/stop-all.sh")
-    run("/root/spark/sbin/stop-all.sh")
+    run("/mydata/lexu/ephemeral-hdfs/bin/stop-all.sh")
+    run("/mydata/lexu/spark/sbin/stop-all.sh")
 
 
   sizes = [3, 6, 9, 12, 15]
@@ -788,7 +788,7 @@ def disk_vary_size(opts):
   banner("Prepare input data")
   if opts.task == "graphlab":
     for s in sizes:
-      slaves_run_parallel("python /root/disaggregation/rmem/trim_file.py /mnt2/netflix_mm %d /mnt2/nf%d.txt" % (s, s), master = True)
+      slaves_run_parallel("python /mydata/lexu/disaggregation/rmem/trim_file.py /mnt2/netflix_mm %d /mnt2/nf%d.txt" % (s, s), master = True)
 
   confs = [] #(inject, latency, bw, size, rmem)
   for s in sizes:
@@ -827,32 +827,32 @@ def memcached_install():
 def graphlab_install():
   all_run("yum install openmpi -y")
   all_run("yum install openmpi-devel -y")
-  slaves_run("echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib/:$LD_LIBRARY_PATH' >> /root/.bashrc; echo 'export PATH=/usr/lib64/openmpi/bin/:$PATH' >> /root/.bashrc")
-  run("echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib/:$LD_LIBRARY_PATH' >> /root/.bash_profile; echo 'export PATH=/usr/lib64/openmpi/bin/:$PATH' >> /root/.bash_profile")
-  run("/root/spark-ec2/copy-dir /root/disaggregation/apps/collaborative_filtering")
+  slaves_run("echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib/:$LD_LIBRARY_PATH' >> /mydata/lexu/.bashrc; echo 'export PATH=/usr/lib64/openmpi/bin/:$PATH' >> /mydata/lexu/.bashrc")
+  run("echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib/:$LD_LIBRARY_PATH' >> /mydata/lexu/.bash_profile; echo 'export PATH=/usr/lib64/openmpi/bin/:$PATH' >> /mydata/lexu/.bash_profile")
+  run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/disaggregation/apps/collaborative_filtering")
 
 def storm_install():
-  run("cd /root; wget http://mirror.metrocast.net/apache/zookeeper/stable/zookeeper-3.4.6.tar.gz; tar xzf zookeeper-3.4.6.tar.gz; rm zookeeper-3.4.6.tar.gz")
+  run("cd /mydata/lexu; wget http://mirror.metrocast.net/apache/zookeeper/stable/zookeeper-3.4.6.tar.gz; tar xzf zookeeper-3.4.6.tar.gz; rm zookeeper-3.4.6.tar.gz")
   zoo_cfg = "tickTime=2000\ninitLimit=10\nsyncLimit=5\ndataDir=/mnt2/zookeeper\nclientPort=2181"
-  with open("/root/zookeeper-3.4.6/conf/zoo.cfg", "w") as zoo_cfg_file:
+  with open("/mydata/lexu/zookeeper-3.4.6/conf/zoo.cfg", "w") as zoo_cfg_file:
     zoo_cfg_file.write(zoo_cfg)
   
-  run("cd /root; wget http://mirror.sdunix.com/apache/storm/apache-storm-0.9.5/apache-storm-0.9.5.tar.gz; tar xzvf apache-storm-0.9.5.tar.gz; rm apache-storm-0.9.5.tar.gz")
+  run("cd /mydata/lexu; wget http://mirror.sdunix.com/apache/storm/apache-storm-0.9.5/apache-storm-0.9.5.tar.gz; tar xzvf apache-storm-0.9.5.tar.gz; rm apache-storm-0.9.5.tar.gz")
 
 def storm_start():
-  run("/root/zookeeper-3.4.6/bin/zkServer.sh start")
+  run("/mydata/lexu/zookeeper-3.4.6/bin/zkServer.sh start")
   time.sleep(4)
-  run("/root/apache-storm-0.9.5/bin/storm nimbus &")
+  run("/mydata/lexu/apache-storm-0.9.5/bin/storm nimbus &")
   time.sleep(4)
-  run("/root/apache-storm-0.9.5/bin/storm ui &")
+  run("/mydata/lexu/apache-storm-0.9.5/bin/storm ui &")
   time.sleep(4)
-  slaves_run("/root/apache-storm-0.9.5/bin/storm supervisor > /dev/null < /dev/null &")
+  slaves_run("/mydata/lexu/apache-storm-0.9.5/bin/storm supervisor > /dev/null < /dev/null &")
   
 def storm_stop():
   slaves_run("pid=\$(jps | grep supervisor | cut -d ' ' -f 1);kill \$pid")
   run("pid=$(jps | grep core | cut -d ' ' -f 1);kill $pid")
   run("pid=$(jps | grep nimbus | cut -d ' ' -f 1);kill $pid")
-  run("/root/zookeeper-3.4.6/bin/zkServer.sh stop")
+  run("/mydata/lexu/zookeeper-3.4.6/bin/zkServer.sh stop")
 
 def graphlab_prepare(size_gb = 20):
   cmd = ('''
@@ -864,7 +864,7 @@ def graphlab_prepare(size_gb = 20):
     rm -rf netflix_m; 
     mkdir netflix_m; 
     cd netflix_m;
-    python /root/disaggregation/rmem/trim_file.py /mnt2/netflix_mm %s /mnt2/netflix_m/netflix_mm; 
+    python /mydata/lexu/disaggregation/rmem/trim_file.py /mnt2/netflix_mm %s /mnt2/netflix_m/netflix_mm; 
   ''' % size_gb).replace("\n"," ")
   slaves_run_parallel(cmd, master = True)
 
@@ -873,27 +873,27 @@ def mount_disk():
 
 def wordcount_prepare(size=125):
 # run("mkdir -p /root/ssd; mount /dev/xvdg /root/ssd")
-  run("/root/ephemeral-hdfs/bin/hadoop dfsadmin -safemode leave")
-  run("/root/ephemeral-hdfs/bin/hadoop fs -rmr /wiki")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfsadmin -safemode leave")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /wiki")
 # run("/root/ephemeral-hdfs/bin/hadoop fs -put /root/ssd/wiki/f" + str(size) + "g.txt /wiki")
-  run("/root/ephemeral-hdfs/bin/hadoop fs -mkdir /wiki")
-  run("/root/ephemeral-hdfs/bin/start-mapred.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -mkdir /wiki")
+  run("/mydata/lexu/ephemeral-hdfs/bin/start-mapred.sh")
   src = " ".join( ["s3n://petergao/wiki_raw/w-part{0:03}".format(i) for i in range(0, size)])
-  run("/root/ephemeral-hdfs/bin/hadoop distcp -m 20  %s /wiki/" % src)
-  run("/root/ephemeral-hdfs/bin/stop-mapred.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop distcp -m 20  %s /wiki/" % src)
+  run("/mydata/lexu/ephemeral-hdfs/bin/stop-mapred.sh")
 
 
 def bdb_prepare():
-  run("/root/ephemeral-hdfs/bin/hadoop dfsadmin -safemode leave")
-  run("/root/ephemeral-hdfs/bin/hadoop fs -rmr /uservisits")
-  run("/root/ephemeral-hdfs/bin/hadoop fs -rmr /rankings")
-  run("/root/ephemeral-hdfs/bin/start-mapred.sh")
-  run("/root/ephemeral-hdfs/bin/hadoop distcp -m 20 s3n://petergao/uservisits/ /uservisits/")
-  run("/root/ephemeral-hdfs/bin/hadoop distcp -m 20 s3n://petergao/rankings/ /rankings/")
-  run("/root/ephemeral-hdfs/bin/stop-mapred.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfsadmin -safemode leave")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /uservisits")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /rankings")
+  run("/mydata/lexu/ephemeral-hdfs/bin/start-mapred.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop distcp -m 20 s3n://petergao/uservisits/ /uservisits/")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop distcp -m 20 s3n://petergao/rankings/ /rankings/")
+  run("/mydata/lexu/ephemeral-hdfs/bin/stop-mapred.sh")
 
 def streaming_prepare():
-    run('''echo "sc.textFile(\"s3n://petergao/wiki_raw_chunked/\\").saveAsTextFile(\"/wiki_raw_chunked/\") | /root/spark/bin/spark-shell''')
+    run('''echo "sc.textFile(\"s3n://petergao/wiki_raw_chunked/\\").saveAsTextFile(\"/wiki_raw_chunked/\") | /mydata/lexu/spark/bin/spark-shell''')
 
 
 def storm_prepare():
@@ -913,19 +913,19 @@ supervisor.slots.ports:
       - 6706
       - 6707
 ui.port: 8081''' % (master, master)
-  with open("/root/apache-storm-0.9.5/conf/storm.yaml", "w") as storm_cfg_file:
+  with open("/mydata/lexu/apache-storm-0.9.5/conf/storm.yaml", "w") as storm_cfg_file:
     storm_cfg_file.write(storm_cfg)
 
-  run("/root/spark-ec2/copy-dir /root/zookeeper-3.4.6; /root/spark-ec2/copy-dir /root/apache-storm-0.9.5")
+  run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/zookeeper-3.4.6; /mydata/lexu/spark-ec2/copy-dir /mydata/lexu/apache-storm-0.9.5")
 
  
-  run("/root/spark-ec2/copy-dir /root/s3cmd; /root/spark-ec2/copy-dir /root/.s3cfg")
+  run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/s3cmd; /mydata/lexu/spark-ec2/copy-dir /mydata/lexu/.s3cfg")
   slaves_run("rm -rf /mnt2/wikitmp; mkdir -p /mnt2/wikitmp")
   slaves = get_slaves()
   file_ids = [[] for s in slaves]
   for i in range(0, 125):
     file_ids[i%len(slaves)].append('{0:03}'.format(i))
-  cmds = [ " ".join(map(lambda id : "/root/s3cmd/s3cmd get s3://petergao/wiki_raw/w-part%s /mnt2/wikitmp/w-part%s;" % (id, id),ids)) for ids in file_ids ]
+  cmds = [ " ".join(map(lambda id : "/mydata/lexu/s3cmd/s3cmd get s3://petergao/wiki_raw/w-part%s /mnt2/wikitmp/w-part%s;" % (id, id),ids)) for ids in file_ids ]
   cmds = [ cmd + " mkdir -p /mnt2/storm; cat /mnt2/wikitmp/* > /mnt2/storm/input.txt; rm -rf /mnt2/wikitmp" for cmd in cmds]
 
   global bash_run_counter
@@ -951,9 +951,9 @@ ui.port: 8081''' % (master, master)
 
 
 def succinct_install():
-  run("cd /root; git clone git@github.com:pxgao/succinct-cpp.git")
-  run("/root/spark-ec2/copy-dir /root/succinct-cpp")
-  run("/root/spark/sbin/slaves.sh /root/succinct-cpp/ec2/install_thrift.sh")
+  run("cd /mydata/lexu; git clone git@github.com:pxgao/succinct-cpp.git")
+  run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/succinct-cpp")
+  run("/mydata/lexu/spark/sbin/slaves.sh /mydata/lexu/succinct-cpp/ec2/install_thrift.sh")
 
 
 def install_elasticsearch():
@@ -967,7 +967,7 @@ def install_elasticsearch():
 
 def es_bench():
   slaves_run_parallel("yum install -y python27; wget https://bootstrap.pypa.io/get-pip.py; python27 get-pip.py; rm get-pip.py; pip install https://github.com/mkocikowski/esbench/archive/dev.zip", master = True)
-  run("cd /root; git clone https://github.com/pxgao/esbench.git; rm -rf /usr/local/lib/python2.7/site-packages/esbench; cp -r /root/esbench /usr/local/lib/python2.7/site-packages/; /root/spark-ec2/copy-dir /usr/local/lib/python2.7/site-packages/esbench/")
+  run("cd /mydata/lexu; git clone https://github.com/pxgao/esbench.git; rm -rf /usr/local/lib/python2.7/site-packages/esbench; cp -r /mydata/lexu/esbench /usr/local/lib/python2.7/site-packages/; /mydata/lexu/spark-ec2/copy-dir /usr/local/lib/python2.7/site-packages/esbench/")
 
 def get_es_throughput():
   run("rm -rf /mnt/es_stats; mkdir -p /mnt/es_stats")
@@ -1026,27 +1026,27 @@ def elasticsearch_run():
 
 
 def update_hdfs_conf(new_temp = "/mnt/ephemeral-hdfs,/mnt2/ephemeral-hdfs", new_rep = 1, new_data = "/mnt/ephemeral-hdfs/data,/mnt2/ephemeral-hdfs/data"):
-  with open('/root/ephemeral-hdfs/conf/core-site.xml', 'r') as core_file:
+  with open('/mydata/lexu/ephemeral-hdfs/conf/core-site.xml', 'r') as core_file:
     core_file_content = core_file.read()
   updated_core_file_content = core_file_content.replace("<value>/mnt/ephemeral-hdfs</value>","<value>%s</value>" % new_temp)
-  with open('/root/ephemeral-hdfs/conf/core-site.xml', 'w') as core_file:
+  with open('/mydata/lexu/ephemeral-hdfs/conf/core-site.xml', 'w') as core_file:
     core_file.write(updated_core_file_content)
 
-  with open('/root/ephemeral-hdfs/conf/hdfs-site.xml', 'r') as hdfs_file:
+  with open('/mydata/lexu/ephemeral-hdfs/conf/hdfs-site.xml', 'r') as hdfs_file:
     hdfs_file_content = hdfs_file.read()
   updated_hdfs_file_content = hdfs_file_content.replace("<value>3</value>","<value>%s</value>" % new_rep).replace("<value>/mnt/ephemeral-hdfs/data</value>","<value>%s</value>" % new_data)
-  with open('/root/ephemeral-hdfs/conf/hdfs-site.xml', 'w') as hdfs_file:
+  with open('/mydata/lexu/ephemeral-hdfs/conf/hdfs-site.xml', 'w') as hdfs_file:
     hdfs_file.write(updated_hdfs_file_content)
   
 
 def reconfig_hdfs():
   update_hdfs_conf()
-  run("/root/ephemeral-hdfs/bin/stop-all.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/stop-all.sh")
   slaves_run("rm -rf /mnt/ephemeral-hdfs/*")
   slaves_run("rm -rf /mnt2/ephemeral-hdfs/*")
-  run("/root/spark-ec2/copy-dir /root/ephemeral-hdfs/conf")
-  run("/root/ephemeral-hdfs/bin/hadoop namenode -format")
-  run("/root/ephemeral-hdfs/bin/start-dfs.sh")
+  run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/ephemeral-hdfs/conf")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop namenode -format")
+  run("/mydata/lexu/ephemeral-hdfs/bin/start-dfs.sh")
   #.....you need to manually modify the conf files
 
 def execute(opts):
@@ -1111,9 +1111,9 @@ def execute(opts):
       confs.append((False, 0, 10000, (1-r) * 29.45, opts.cdf, 0, False, opts.spark_mem))
 
   elif opts.slowdown_cdf_exp != "":
-    assert(os.path.isdir("/root/disaggregation/rmem/fcts/%s" % opts.slowdown_cdf_exp))
-    rack_scale_file = "/root/disaggregation/rmem/fcts/%s/fcts_tmrs_pfabric_%s.txt" % (opts.slowdown_cdf_exp, opts.task)
-    dc_scale_file = "/root/disaggregation/rmem/fcts/%s/fcts_tm_pfabric_%s.txt" % (opts.slowdown_cdf_exp, opts.task)
+    assert(os.path.isdir("/mydata/lexu/disaggregation/rmem/fcts/%s" % opts.slowdown_cdf_exp))
+    rack_scale_file = "/mydata/lexu/disaggregation/rmem/fcts/%s/fcts_tmrs_pfabric_%s.txt" % (opts.slowdown_cdf_exp, opts.task)
+    dc_scale_file = "/mydata/lexu/disaggregation/rmem/fcts/%s/fcts_tm_pfabric_%s.txt" % (opts.slowdown_cdf_exp, opts.task)
     if not opts.no_baseline:
       confs.append(baseline)
     confs.append((False, opts.latency, opts.bandwidth, opts.remote_memory, dc_scale_file, 0, False, opts.spark_mem))
@@ -1152,8 +1152,8 @@ def execute(opts):
     print result_str
 
 def stop_tachyon():
-  run("/root/tachyon/bin/tachyon-stop.sh")
-  run("/root/ephemeral-hdfs/bin/hadoop dfs -rmr /tachyon")
+  run("/mydata/lexu/tachyon/bin/tachyon-stop.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /tachyon")
 
 def update_kernel():
   all_run("yum install kernel-devel -y; yum install kernel -y", background=True)
@@ -1169,8 +1169,8 @@ def install_timely():
   cmd = "wget https://static.rust-lang.org/rustup.sh; sh rustup.sh -y; rm rustup.sh"
   slaves_run(cmd, tt = True)
   run(cmd)
-  run("cd /root; git clone https://github.com/frankmcsherry/pagerank.git; /root/spark-ec2/copy-dir /root/pagerank")
-  compile_cmd = "cd /root/pagerank; cargo build --release --bin pagerank" 
+  run("cd /mydata/lexu; git clone https://github.com/frankmcsherry/pagerank.git; /mydata/lexu/spark-ec2/copy-dir /mydata/lexu/pagerank")
+  compile_cmd = "cd /mydata/lexu/pagerank; cargo build --release --bin pagerank" 
   slaves_run_parallel(compile_cmd, master = True)
 
 def install_dstat():
@@ -1189,7 +1189,7 @@ yum install -y apache-maven'''.replace("\n", ";")
 def timely_prepare():
   cmd = "rm -rf /mnt2/timely; mkdir -p /mnt2/timely;"
   slaves_run_parallel(cmd, master = True)
-  run("/root/spark-ec2/copy-dir /root/s3cmd; /root/spark-ec2/copy-dir /root/.s3cfg;")
+  run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/s3cmd; /mydata/lexu/spark-ec2/copy-dir /mydata/lexu/.s3cfg;")
 
   slaves_run("rm -rf /mnt2/friendster; mkdir -p /mnt2/friendster")
   def get_offsets(server = ""):
@@ -1231,7 +1231,7 @@ def timely_prepare():
     for i in range(0,1):
       hosts_file.write(s + ":1988" + str(i) + "\n")
   hosts_file.close()
-  run("/root/spark-ec2/copy-dir /mnt2/timely/hosts.txt")
+  run("/mydata/lexu/spark-ec2/copy-dir /mnt2/timely/hosts.txt")
 
 
 def timely_run():
@@ -1251,7 +1251,7 @@ def timely_run():
     hosts = hosts_file.readlines()
   for line in hosts:
     s = line.split(":")[0]
-    cmd = "cd /root/pagerank; cargo run --release --bin pagerank -- /mnt2/timely/my-graph -h /mnt2/timely/hosts.txt -n %s -p %s -w 6" % (len(hosts), count)
+    cmd = "cd /mydata/lexu/pagerank; cargo run --release --bin pagerank -- /mnt2/timely/my-graph -h /mnt2/timely/hosts.txt -n %s -p %s -w 6" % (len(hosts), count)
     threads.append(threading.Thread(target=ssh, args=(s, cmd, bash_run_counter,)))
     bash_run_counter += 1
     count += 1
@@ -1262,7 +1262,7 @@ def timely_run():
 
 def install_all():
   update_kernel()
-  slaves_run("mkdir -p /root/disaggregation/rmem/.remote_commands")
+  slaves_run("mkdir -p /mydata/lexu/disaggregation/rmem/.remote_commands")
   install_blktrace()
   graphlab_install()
   memcached_install()
@@ -1275,8 +1275,8 @@ def install_all():
   install_bwmng()
 
 def prepare_env():
-  slaves_run("mkdir -p /root/disaggregation/rmem/.remote_commands")
-  stop_tachyon()
+  slaves_run("mkdir -p /mydata/lexu/disaggregation/rmem/.remote_commands")
+  #stop_tachyon()
   turn_off_os_swap()
   sync_rmem_code()
   update_hadoop_conf()
@@ -1286,7 +1286,7 @@ def prepare_env():
   run("echo 1 > /mnt/env_prepared")
 
 def clear_all_data():
-  run("/root/ephemeral-hdfs/bin/hadoop dfs -rmr \"/*\"") #spark and hadoop
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr \"/*\"") #spark and hadoop
   all_run("rm -rf /mnt2/netflix_mm; rm -rf /mnt2/netflix_m") #graphlab
   all_run("rm -rf /mnt2/timely") #timely
 
@@ -1308,17 +1308,17 @@ def reconfig_hdfs_tachyon():
     return
 
   all_run("swapoff -a")
-  run("/root/tachyon/bin/tachyon-stop.sh")
-  run("/root/ephemeral-hdfs/bin/stop-all.sh")
+  run("/mydata/lexu/tachyon/bin/tachyon-stop.sh")
+  run("/mydata/lexu/ephemeral-hdfs/bin/stop-all.sh")
   update_hdfs_conf(new_temp = "/mnt/ephemeral-hdfs", new_rep = 1, new_data = "/mnt/ephemeral-hdfs/data")
   slaves_run("umount /mnt/ramdisk; umount /mnt; rm -rf /mnt; mkdir /mnt; mount /dev/xvdf /mnt")
   
   
-  run("/root/spark-ec2/copy-dir /root/ephemeral-hdfs/conf")
-  run("/root/ephemeral-hdfs/bin/hadoop namenode -format -y")
-  run("/root/ephemeral-hdfs/bin/start-dfs.sh")
-  run("/root/tachyon/bin/tachyon-start.sh all Mount")
-  run("/root/ephemeral-hdfs/bin/hadoop dfsadmin -safemode leave") 
+  run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/ephemeral-hdfs/conf")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop namenode -format -y")
+  run("/mydata/lexu/ephemeral-hdfs/bin/start-dfs.sh")
+  run("/mydata/lexu/tachyon/bin/tachyon-start.sh all Mount")
+  run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfsadmin -safemode leave") 
 
 
 def tachyon_prepare():
@@ -1333,9 +1333,9 @@ def tachyon_run():
   master = get_master()
   tachyon = True
   if tachyon:
-    run("/root/spark/bin/spark-submit --class \"TeraSort\" --master \"spark://%s:7077\" --conf \"spark.executor.memory=64g\" \"/root/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" \"tachyon://%s:19998/sparksort_input_%s/\" \"tachyon://%s:19998/sparksort_ouput/\"" % (master, master, sz, master) )
+    run("/mydata/lexu/spark/bin/spark-submit --class \"TeraSort\" --master \"spark://%s:7077\" --conf \"spark.executor.memory=64g\" \"/mydata/lexu/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" \"tachyon://%s:19998/sparksort_input_%s/\" \"tachyon://%s:19998/sparksort_ouput/\"" % (master, master, sz, master) )
   else:
-    run("/root/spark/bin/spark-submit --class \"TeraSort\" --master \"spark://%s:7077\" --conf \"spark.executor.memory=64g\" \"/root/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" \"/sparksort_input_%s/\" \"/sparksort_ouput/\"" % (master, sz) )
+    run("/mydata/lexu/spark/bin/spark-submit --class \"TeraSort\" --master \"spark://%s:7077\" --conf \"spark.executor.memory=64g\" \"/mydata/lexu/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" \"/sparksort_input_%s/\" \"/sparksort_ouput/\"" % (master, sz) )
 
 
 def main():
