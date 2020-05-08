@@ -601,18 +601,18 @@ static int __init rmem_init(void) {
 			pr_info("rmem: allocated %dth page\n", i);
 	}
 
-	// printk(KERN_WARNING "rmem: complete allocation  \n");
-	// /*
-	//  * Get a request queue.
-	//  */
-	// Queue = blk_init_queue(rmem_request, &device.lock);
-	// if (Queue == NULL)
-	// 	goto out;
-	// printk(KERN_WARNING "rmem: initialize queue  \n");
-	// blk_queue_physical_block_size(Queue, PAGE_SIZE);
-	// blk_queue_logical_block_size(Queue, PAGE_SIZE);
-	// blk_queue_io_min(Queue, PAGE_SIZE);
-	// blk_queue_io_opt(Queue, PAGE_SIZE * 4);
+	printk(KERN_WARNING "rmem: complete allocation  \n");
+	/*
+	 * Get a request queue.
+	 */
+	Queue = blk_init_queue(rmem_request, &device.lock);
+	if (Queue == NULL)
+		goto out;
+	printk(KERN_WARNING "rmem: initialize queue  \n");
+	blk_queue_physical_block_size(Queue, PAGE_SIZE);
+	blk_queue_logical_block_size(Queue, PAGE_SIZE);
+	blk_queue_io_min(Queue, PAGE_SIZE);
+	blk_queue_io_opt(Queue, PAGE_SIZE * 4);
 	// /*
 	//  * Get registered.
 	//  */
@@ -665,7 +665,7 @@ static void __exit rmem_exit(void)
 	// del_gendisk(device.gd);
 	// put_disk(device.gd);
 	// unregister_blkdev(major_num, "rmem");
-	// blk_cleanup_queue(Queue);
+	blk_cleanup_queue(Queue);
 
 	for (i = 0; i < npages; i++)
 		kfree(device.data[i]);
