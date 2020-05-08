@@ -641,8 +641,8 @@ static int __init rmem_init(void) {
 	strcpy(device.gd->disk_name, "rmem0");
 	set_capacity(device.gd, npages * SECTORS_PER_PAGE);
 	printk(KERN_WARNING "rmem: set_capacity %d %ld\n",npages, SECTORS_PER_PAGE);
-	// device.gd->queue = Queue;
-	// add_disk(device.gd);
+	device.gd->queue = Queue;
+	add_disk(device.gd);
 
 	// sysctl_header = register_sysctl_table(dev_root);
 	// printk(KERN_WARNING "rmem: complete regiester sysctl table\n");
@@ -668,7 +668,7 @@ static void __exit rmem_exit(void)
 	}
 
 
-	//del_gendisk(device.gd);
+	del_gendisk(device.gd);
 	put_disk(device.gd);
 	unregister_blkdev(major_num, "rmem");
 	blk_cleanup_queue(Queue);
