@@ -1366,6 +1366,7 @@ def main():
   if opts.disk_vary_size:
     disk_vary_size(opts) 
   elif opts.task in run_exp_tasks:
+    print("dummytask")
     execute(opts)
   elif opts.task == "terasort-vary-size":
     terasort_vary_size(opts)
