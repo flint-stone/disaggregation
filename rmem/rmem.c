@@ -575,31 +575,31 @@ static int __init rmem_init(void) {
 	}
 
 
-	// /*
-	//  * Set up our internal device.
-	//  */
-	// device.size = npages * PAGE_SIZE;
-	// spin_lock_init(&device.lock);
+	/*
+	 * Set up our internal device.
+	 */
+	device.size = npages * PAGE_SIZE;
+	spin_lock_init(&device.lock);
 
-	// device.data = vmalloc(npages * sizeof(u8 *));
-	// if (device.data == NULL)
-	// 	return -ENOMEM;
+	device.data = vmalloc(npages * sizeof(u8 *));
+	if (device.data == NULL)
+		return -ENOMEM;
 
-	// printk(KERN_WARNING "rmem: npages %d\n", npages);
-	// for (i = 0; i < npages; i++) {
-	// 	device.data[i] = kmalloc(PAGE_SIZE, GFP_KERNEL);
-	// 	if (device.data[i] == NULL) {
-	// 		int j;
-	// 		for (j = 0; j < i - 1; j++)
-	// 			kfree(device.data[i]);
-	// 		vfree(device.data);
-	// 		return -ENOMEM;
-	// 	}
+	printk(KERN_WARNING "rmem: npages %d\n", npages);
+	for (i = 0; i < npages; i++) {
+		device.data[i] = kmalloc(PAGE_SIZE, GFP_KERNEL);
+		if (device.data[i] == NULL) {
+			int j;
+			for (j = 0; j < i - 1; j++)
+				kfree(device.data[i]);
+			vfree(device.data);
+			return -ENOMEM;
+		}
 
-	// 	memset(device.data[i], 0, PAGE_SIZE);
-	// 	if (i % 100000 == 0)
-	// 		pr_info("rmem: allocated %dth page\n", i);
-	// }
+		memset(device.data[i], 0, PAGE_SIZE);
+		if (i % 100000 == 0)
+			pr_info("rmem: allocated %dth page\n", i);
+	}
 
 	// printk(KERN_WARNING "rmem: complete allocation  \n");
 	// /*
@@ -667,10 +667,10 @@ static void __exit rmem_exit(void)
 	// unregister_blkdev(major_num, "rmem");
 	// blk_cleanup_queue(Queue);
 
-	// for (i = 0; i < npages; i++)
-	// 	kfree(device.data[i]);
+	for (i = 0; i < npages; i++)
+		kfree(device.data[i]);
 
-	// vfree(device.data);
+	vfree(device.data);
 
 	// unregister_sysctl_table(sysctl_header);
 
