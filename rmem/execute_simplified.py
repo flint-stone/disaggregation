@@ -150,6 +150,7 @@ def setup_rmem(rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, slow
   trace_int = 1 if trace else 0
 
   if bw_gbps == -1: #use disk
+    print("Use Disk")
     rmem_mb = int(rmem_gb * 1024)
     install_rmem = '''
       cd /mydata/lexu/disaggregation/rmem
@@ -614,6 +615,7 @@ def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, s
       print "Overflow: %s" % result.overflow
 
   if not no_sit: 
+    print("clean existing rmem " + str(bw_gbps))
     clean_existing_rmem(bw_gbps)
 
     setup_rmem(rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, slowdown_cdf, task)
