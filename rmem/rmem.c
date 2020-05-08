@@ -622,17 +622,17 @@ static int __init rmem_init(void) {
 		printk(KERN_WARNING "rmem: unable to get major number\n");
 		goto out;
 	}
-	// /*
-	//  * And the gendisk structure.
-	//  */
-	// device.gd = alloc_disk(16);
-	// if (!device.gd)
-	// 	goto out_unregister;
-	// device.gd->major = major_num;
-	// device.gd->first_minor = 0;
-	// device.gd->fops = &rmem_ops;
-	// device.gd->private_data = &device;
-	// strcpy(device.gd->disk_name, "rmem0");
+	/*
+	 * And the gendisk structure.
+	 */
+	device.gd = alloc_disk(16);
+	if (!device.gd)
+		goto out_unregister;
+	device.gd->major = major_num;
+	device.gd->first_minor = 0;
+	device.gd->fops = &rmem_ops;
+	device.gd->private_data = &device;
+	strcpy(device.gd->disk_name, "rmem0");
 	// set_capacity(device.gd, npages * SECTORS_PER_PAGE);
 	// printk(KERN_WARNING "rmem: set_capacity %d %ld\n",npages, SECTORS_PER_PAGE);
 	// device.gd->queue = Queue;
@@ -662,7 +662,7 @@ static void __exit rmem_exit(void)
 	}
 
 
-	// del_gendisk(device.gd);
+	del_gendisk(device.gd);
 	// put_disk(device.gd);
 	unregister_blkdev(major_num, "rmem");
 	blk_cleanup_queue(Queue);
