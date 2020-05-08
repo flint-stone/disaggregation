@@ -621,7 +621,7 @@ def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, s
 
   master = get_master()
 
-  banner("Running app"):
+  banner("Running app")
   if task == "dummytask":
     print("preparing nom nom nom...")
     app_start()
