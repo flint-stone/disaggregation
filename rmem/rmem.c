@@ -550,96 +550,96 @@ static int __init rmem_init(void) {
 	if(sizeof(access_record) != RECORD_SIZE)
 		return -ENOMEM;
 
-	pr_info("%d, %p", get_record, request_log);
-	if(get_record && request_log == NULL)
-	{
-		request_log = (access_record*)vmalloc(sizeof(access_record) * LOG_BATCH_SIZE);
-		pr_info("Allocated space for %d", LOG_BATCH_SIZE);
-	}
-	for(i = 0; i < FCT_MAX_SIZE; i++)
-		fct_by_size[i] = 0;
+	// pr_info("%d, %p", get_record, request_log);
+	// if(get_record && request_log == NULL)
+	// {
+	// 	request_log = (access_record*)vmalloc(sizeof(access_record) * LOG_BATCH_SIZE);
+	// 	pr_info("Allocated space for %d", LOG_BATCH_SIZE);
+	// }
+	// for(i = 0; i < FCT_MAX_SIZE; i++)
+	// 	fct_by_size[i] = 0;
 
   
-	pr_info("PAGE_SIZE: %lu", PAGE_SIZE);
+	// pr_info("PAGE_SIZE: %lu", PAGE_SIZE);
 	
-	spin_lock_init(&rx_lock);
-	spin_lock_init(&tx_lock);
-	spin_lock_init(&log_lock);
-	spin_lock_init(&cdf_lock);
+	// spin_lock_init(&rx_lock);
+	// spin_lock_init(&tx_lock);
+	// spin_lock_init(&log_lock);
+	// spin_lock_init(&cdf_lock);
 
-	log_file = proc_create("rmem_log", 0666, NULL, &log_fops);
-	cdf_file = proc_create("rmem_cdf", 0666, NULL, &cdf_fops);
+	// log_file = proc_create("rmem_log", 0666, NULL, &log_fops);
+	// cdf_file = proc_create("rmem_cdf", 0666, NULL, &cdf_fops);
 
-	if (!log_file || !cdf_file) {
-		return -ENOMEM;
-	}
+	// if (!log_file || !cdf_file) {
+	// 	return -ENOMEM;
+	// }
 
 
-	/*
-	 * Set up our internal device.
-	 */
-	device.size = npages * PAGE_SIZE;
-	spin_lock_init(&device.lock);
+	// /*
+	//  * Set up our internal device.
+	//  */
+	// device.size = npages * PAGE_SIZE;
+	// spin_lock_init(&device.lock);
 
-	device.data = vmalloc(npages * sizeof(u8 *));
-	if (device.data == NULL)
-		return -ENOMEM;
+	// device.data = vmalloc(npages * sizeof(u8 *));
+	// if (device.data == NULL)
+	// 	return -ENOMEM;
 
-	printk(KERN_WARNING "rmem: npages %d\n", npages);
-	for (i = 0; i < npages; i++) {
-		device.data[i] = kmalloc(PAGE_SIZE, GFP_KERNEL);
-		if (device.data[i] == NULL) {
-			int j;
-			for (j = 0; j < i - 1; j++)
-				kfree(device.data[i]);
-			vfree(device.data);
-			return -ENOMEM;
-		}
+	// printk(KERN_WARNING "rmem: npages %d\n", npages);
+	// for (i = 0; i < npages; i++) {
+	// 	device.data[i] = kmalloc(PAGE_SIZE, GFP_KERNEL);
+	// 	if (device.data[i] == NULL) {
+	// 		int j;
+	// 		for (j = 0; j < i - 1; j++)
+	// 			kfree(device.data[i]);
+	// 		vfree(device.data);
+	// 		return -ENOMEM;
+	// 	}
 
-		memset(device.data[i], 0, PAGE_SIZE);
-		if (i % 100000 == 0)
-			pr_info("rmem: allocated %dth page\n", i);
-	}
+	// 	memset(device.data[i], 0, PAGE_SIZE);
+	// 	if (i % 100000 == 0)
+	// 		pr_info("rmem: allocated %dth page\n", i);
+	// }
 
-	printk(KERN_WARNING "rmem: complete allocation  \n");
-	/*
-	 * Get a request queue.
-	 */
-	Queue = blk_init_queue(rmem_request, &device.lock);
-	if (Queue == NULL)
-		goto out;
-	printk(KERN_WARNING "rmem: initialize queue  \n");
-	blk_queue_physical_block_size(Queue, PAGE_SIZE);
-	blk_queue_logical_block_size(Queue, PAGE_SIZE);
-	blk_queue_io_min(Queue, PAGE_SIZE);
-	blk_queue_io_opt(Queue, PAGE_SIZE * 4);
-	/*
-	 * Get registered.
-	 */
-	major_num = register_blkdev(major_num, "rmem");
-	printk(KERN_WARNING "rmem: block device registered \n");
-	if (major_num < 0) {
-		printk(KERN_WARNING "rmem: unable to get major number\n");
-		goto out;
-	}
-	/*
-	 * And the gendisk structure.
-	 */
-	device.gd = alloc_disk(16);
-	if (!device.gd)
-		goto out_unregister;
-	device.gd->major = major_num;
-	device.gd->first_minor = 0;
-	device.gd->fops = &rmem_ops;
-	device.gd->private_data = &device;
-	strcpy(device.gd->disk_name, "rmem0");
-	set_capacity(device.gd, npages * SECTORS_PER_PAGE);
-	printk(KERN_WARNING "rmem: set_capacity %d %d\n",npages, SECTORS_PER_PAGE);
-	device.gd->queue = Queue;
-	add_disk(device.gd);
+	// printk(KERN_WARNING "rmem: complete allocation  \n");
+	// /*
+	//  * Get a request queue.
+	//  */
+	// Queue = blk_init_queue(rmem_request, &device.lock);
+	// if (Queue == NULL)
+	// 	goto out;
+	// printk(KERN_WARNING "rmem: initialize queue  \n");
+	// blk_queue_physical_block_size(Queue, PAGE_SIZE);
+	// blk_queue_logical_block_size(Queue, PAGE_SIZE);
+	// blk_queue_io_min(Queue, PAGE_SIZE);
+	// blk_queue_io_opt(Queue, PAGE_SIZE * 4);
+	// /*
+	//  * Get registered.
+	//  */
+	// major_num = register_blkdev(major_num, "rmem");
+	// printk(KERN_WARNING "rmem: block device registered \n");
+	// if (major_num < 0) {
+	// 	printk(KERN_WARNING "rmem: unable to get major number\n");
+	// 	goto out;
+	// }
+	// /*
+	//  * And the gendisk structure.
+	//  */
+	// device.gd = alloc_disk(16);
+	// if (!device.gd)
+	// 	goto out_unregister;
+	// device.gd->major = major_num;
+	// device.gd->first_minor = 0;
+	// device.gd->fops = &rmem_ops;
+	// device.gd->private_data = &device;
+	// strcpy(device.gd->disk_name, "rmem0");
+	// set_capacity(device.gd, npages * SECTORS_PER_PAGE);
+	// printk(KERN_WARNING "rmem: set_capacity %d %ld\n",npages, SECTORS_PER_PAGE);
+	// device.gd->queue = Queue;
+	// add_disk(device.gd);
 
-	sysctl_header = register_sysctl_table(dev_root);
-	printk(KERN_WARNING "rmem: complete regiester sysctl table\n");
+	// sysctl_header = register_sysctl_table(dev_root);
+	// printk(KERN_WARNING "rmem: complete regiester sysctl table\n");
 	return 0;
 
 out_unregister:
