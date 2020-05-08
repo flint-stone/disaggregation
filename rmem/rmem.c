@@ -562,17 +562,17 @@ static int __init rmem_init(void) {
   
 	pr_info("PAGE_SIZE: %lu", PAGE_SIZE);
 	
-	// spin_lock_init(&rx_lock);
-	// spin_lock_init(&tx_lock);
-	// spin_lock_init(&log_lock);
-	// spin_lock_init(&cdf_lock);
+	spin_lock_init(&rx_lock);
+	spin_lock_init(&tx_lock);
+	spin_lock_init(&log_lock);
+	spin_lock_init(&cdf_lock);
 
-	// log_file = proc_create("rmem_log", 0666, NULL, &log_fops);
-	// cdf_file = proc_create("rmem_cdf", 0666, NULL, &cdf_fops);
+	log_file = proc_create("rmem_log", 0666, NULL, &log_fops);
+	cdf_file = proc_create("rmem_cdf", 0666, NULL, &cdf_fops);
 
-	// if (!log_file || !cdf_file) {
-	// 	return -ENOMEM;
-	// }
+	if (!log_file || !cdf_file) {
+		return -ENOMEM;
+	}
 
 
 	// /*
@@ -662,20 +662,20 @@ static void __exit rmem_exit(void)
 	}
 
 
-	del_gendisk(device.gd);
-	put_disk(device.gd);
-	unregister_blkdev(major_num, "rmem");
-	blk_cleanup_queue(Queue);
+	// del_gendisk(device.gd);
+	// put_disk(device.gd);
+	// unregister_blkdev(major_num, "rmem");
+	// blk_cleanup_queue(Queue);
 
-	for (i = 0; i < npages; i++)
-		kfree(device.data[i]);
+	// for (i = 0; i < npages; i++)
+	// 	kfree(device.data[i]);
 
-	vfree(device.data);
+	// vfree(device.data);
 
-	unregister_sysctl_table(sysctl_header);
+	// unregister_sysctl_table(sysctl_header);
 
-	remove_proc_entry("rmem_log", NULL);
-	remove_proc_entry("rmem_cdf", NULL);
+	// remove_proc_entry("rmem_log", NULL);
+	// remove_proc_entry("rmem_cdf", NULL);
 
 	pr_info("rmem: bye!\n");
 }
