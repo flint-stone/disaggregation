@@ -613,15 +613,15 @@ static int __init rmem_init(void) {
 	blk_queue_logical_block_size(Queue, PAGE_SIZE);
 	blk_queue_io_min(Queue, PAGE_SIZE);
 	blk_queue_io_opt(Queue, PAGE_SIZE * 4);
-	// /*
-	//  * Get registered.
-	//  */
-	// major_num = register_blkdev(major_num, "rmem");
-	// printk(KERN_WARNING "rmem: block device registered \n");
-	// if (major_num < 0) {
-	// 	printk(KERN_WARNING "rmem: unable to get major number\n");
-	// 	goto out;
-	// }
+	/*
+	 * Get registered.
+	 */
+	major_num = register_blkdev(major_num, "rmem");
+	printk(KERN_WARNING "rmem: block device registered \n");
+	if (major_num < 0) {
+		printk(KERN_WARNING "rmem: unable to get major number\n");
+		goto out;
+	}
 	// /*
 	//  * And the gendisk structure.
 	//  */
@@ -664,7 +664,7 @@ static void __exit rmem_exit(void)
 
 	// del_gendisk(device.gd);
 	// put_disk(device.gd);
-	// unregister_blkdev(major_num, "rmem");
+	unregister_blkdev(major_num, "rmem");
 	blk_cleanup_queue(Queue);
 
 	for (i = 0; i < npages; i++)
