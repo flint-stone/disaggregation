@@ -205,135 +205,135 @@ static void rmem_transfer(struct rmem_device *dev, sector_t sector,
 
 static void rmem_request(struct request_queue *q) 
 {
-	struct request *req;
-	u64 begin = 0ULL;
-	u64 slowdown = 10000;
-	access_record record;
-	struct timeval tms;
-	int count = 0;
-	int last_page = -2;
-	int last_dir = -1;
+	// struct request *req;
+	// u64 begin = 0ULL;
+	// u64 slowdown = 10000;
+	// access_record record;
+	// struct timeval tms;
+	// int count = 0;
+	// int last_page = -2;
+	// int last_dir = -1;
 
-	bool has_req = false;
-	sector_t sector, last_sector;
-	unsigned long nsect, last_nsect;
-	char *buffer, *last_buffer;
-	int write, last_write;
+	// bool has_req = false;
+	// sector_t sector, last_sector;
+	// unsigned long nsect, last_nsect;
+	// char *buffer, *last_buffer;
+	// int write, last_write;
 
-	if(inject_latency){
-		begin = sched_clock();
-		while ((sched_clock() - begin) < latency_ns) {
-			/* wait for RTT latency */
-			;
-		}
-	}
+	// if(inject_latency){
+	// 	begin = sched_clock();
+	// 	while ((sched_clock() - begin) < latency_ns) {
+	// 		/* wait for RTT latency */
+	// 		;
+	// 	}
+	// }
 
-	req = blk_fetch_request(q);
-	if(req){
-		if(get_record){
-			spin_lock(&log_lock);
-			record.batch = batch_count++;
-			spin_unlock(&log_lock);
-			do_gettimeofday(&tms);
-			record.timestamp = tms.tv_sec * 1000 * 1000 + tms.tv_usec;
-		}
-		while (req != NULL) {
-			// blk_fs_request() was removed in 2.6.36 - many thanks to
-			// Christian Paro for the heads up and fix...
-			//if (!blk_fs_request(req)) {
-			//if (req == NULL || (req->cmd_type != REQ_TYPE_FS)) {
-			//https://groups.google.com/forum/#!topic/linux.kernel/HQ-r5oxiIp0
-			if (req == NULL || !blk_rq_is_passthrough(req)){
-				printk (KERN_NOTICE "Skip non-CMD request\n");
-				__blk_end_request_all(req, -EIO);
-				continue;
-			}
-			if(get_record)
-			{
-				if(rq_data_dir(req) == last_dir && last_page + 1 == blk_rq_pos(req) / SECTORS_PER_PAGE)
-				{
-					record.length++;
-				}
-				else
-				{
-					if(last_dir != -1 || last_page != -2)
-					{
-						spin_lock(&log_lock);
-				                request_log[log_head] = record;
-				                log_head = (log_head + 1)%LOG_BATCH_SIZE;
-				                if(log_head == log_tail)
-                        				overflow = 1;
-						spin_unlock(&log_lock);
-					}
-					record.length = 1;
-					record.page = blk_rq_pos(req) / SECTORS_PER_PAGE * (rq_data_dir(req)?1:-1);
-				}
-			}
-			#if MERGE
-			if(!has_req)
-			{
-				last_sector = blk_rq_pos(req);
-				last_nsect = blk_rq_cur_sectors(req);
-				last_buffer = bio_data(req->bio);
-				last_write = rq_data_dir(req);
-				has_req = true;
-			}
-			else
-			{
-				sector = blk_rq_pos(req);
-				nsect = blk_rq_cur_sectors(req);
-				buffer = bio_data(req->bio);
-				write = rq_data_dir(req);
-				if(last_sector + last_nsect == sector && last_buffer + nsect * KERNEL_SECTOR_SIZE == buffer && write == last_write)
-				{
-					last_nsect += nsect;
-				}
-				else
-				{
-					rmem_transfer(&device, last_sector, last_nsect, last_buffer, last_write, slowdown);
-					last_sector = sector;
-					last_nsect = nsect;
-					last_buffer = buffer;
-					last_write = write;
-				}
-			}
-			#else
-			rmem_transfer(&device, blk_rq_pos(req), blk_rq_cur_sectors(req),
-					bio_data(req->bio), rq_data_dir(req), slowdown);
-			#endif
-			if(get_record)
-			{
-				last_dir = rq_data_dir(req);
-				last_page = blk_rq_pos(req) / SECTORS_PER_PAGE;
-			}
-			count++;
-			if ( ! __blk_end_request_cur(req, 0) ) {
-				#if MERGE
-				rmem_transfer(&device, last_sector, last_nsect, last_buffer, last_write, slowdown);
-				has_req = false;
-				#endif
-				req = blk_fetch_request(q);
-			}
-		}
-		if(get_record)
-		{
-			spin_lock(&log_lock);
-	                request_log[log_head] = record;
-	                log_head = (log_head + 1)%LOG_BATCH_SIZE;
-	                if(log_head == log_tail)
-				overflow = 1;
-			spin_unlock(&log_lock);
-		}
-	}
-	if(fct_record_count){
-    u64 fct;
-    begin = sched_clock();
-		fct = get_fct(count);
-		while ((sched_clock() - begin) < fct) {
-			// wait for RTT latency */
-			;
-		}
-	}
+	// req = blk_fetch_request(q);
+	// if(req){
+	// 	if(get_record){
+	// 		spin_lock(&log_lock);
+	// 		record.batch = batch_count++;
+	// 		spin_unlock(&log_lock);
+	// 		do_gettimeofday(&tms);
+	// 		record.timestamp = tms.tv_sec * 1000 * 1000 + tms.tv_usec;
+	// 	}
+	// 	while (req != NULL) {
+	// 		// blk_fs_request() was removed in 2.6.36 - many thanks to
+	// 		// Christian Paro for the heads up and fix...
+	// 		//if (!blk_fs_request(req)) {
+	// 		//if (req == NULL || (req->cmd_type != REQ_TYPE_FS)) {
+	// 		//https://groups.google.com/forum/#!topic/linux.kernel/HQ-r5oxiIp0
+	// 		if (req == NULL || !blk_rq_is_passthrough(req)){
+	// 			printk (KERN_NOTICE "Skip non-CMD request\n");
+	// 			__blk_end_request_all(req, -EIO);
+	// 			continue;
+	// 		}
+	// 		if(get_record)
+	// 		{
+	// 			if(rq_data_dir(req) == last_dir && last_page + 1 == blk_rq_pos(req) / SECTORS_PER_PAGE)
+	// 			{
+	// 				record.length++;
+	// 			}
+	// 			else
+	// 			{
+	// 				if(last_dir != -1 || last_page != -2)
+	// 				{
+	// 					spin_lock(&log_lock);
+	// 			                request_log[log_head] = record;
+	// 			                log_head = (log_head + 1)%LOG_BATCH_SIZE;
+	// 			                if(log_head == log_tail)
+ //                        				overflow = 1;
+	// 					spin_unlock(&log_lock);
+	// 				}
+	// 				record.length = 1;
+	// 				record.page = blk_rq_pos(req) / SECTORS_PER_PAGE * (rq_data_dir(req)?1:-1);
+	// 			}
+	// 		}
+	// 		#if MERGE
+	// 		if(!has_req)
+	// 		{
+	// 			last_sector = blk_rq_pos(req);
+	// 			last_nsect = blk_rq_cur_sectors(req);
+	// 			last_buffer = bio_data(req->bio);
+	// 			last_write = rq_data_dir(req);
+	// 			has_req = true;
+	// 		}
+	// 		else
+	// 		{
+	// 			sector = blk_rq_pos(req);
+	// 			nsect = blk_rq_cur_sectors(req);
+	// 			buffer = bio_data(req->bio);
+	// 			write = rq_data_dir(req);
+	// 			if(last_sector + last_nsect == sector && last_buffer + nsect * KERNEL_SECTOR_SIZE == buffer && write == last_write)
+	// 			{
+	// 				last_nsect += nsect;
+	// 			}
+	// 			else
+	// 			{
+	// 				rmem_transfer(&device, last_sector, last_nsect, last_buffer, last_write, slowdown);
+	// 				last_sector = sector;
+	// 				last_nsect = nsect;
+	// 				last_buffer = buffer;
+	// 				last_write = write;
+	// 			}
+	// 		}
+	// 		#else
+	// 		rmem_transfer(&device, blk_rq_pos(req), blk_rq_cur_sectors(req),
+	// 				bio_data(req->bio), rq_data_dir(req), slowdown);
+	// 		#endif
+	// 		if(get_record)
+	// 		{
+	// 			last_dir = rq_data_dir(req);
+	// 			last_page = blk_rq_pos(req) / SECTORS_PER_PAGE;
+	// 		}
+	// 		count++;
+	// 		if ( ! __blk_end_request_cur(req, 0) ) {
+	// 			#if MERGE
+	// 			rmem_transfer(&device, last_sector, last_nsect, last_buffer, last_write, slowdown);
+	// 			has_req = false;
+	// 			#endif
+	// 			req = blk_fetch_request(q);
+	// 		}
+	// 	}
+	// 	if(get_record)
+	// 	{
+	// 		spin_lock(&log_lock);
+	//                 request_log[log_head] = record;
+	//                 log_head = (log_head + 1)%LOG_BATCH_SIZE;
+	//                 if(log_head == log_tail)
+	// 			overflow = 1;
+	// 		spin_unlock(&log_lock);
+	// 	}
+	// }
+	// if(fct_record_count){
+ //    u64 fct;
+ //    begin = sched_clock();
+	// 	fct = get_fct(count);
+	// 	while ((sched_clock() - begin) < fct) {
+	// 		// wait for RTT latency */
+	// 		;
+	// 	}
+	// }
 }
 
 /*
@@ -635,8 +635,8 @@ static int __init rmem_init(void) {
 	strcpy(device.gd->disk_name, "rmem0");
 	set_capacity(device.gd, npages * SECTORS_PER_PAGE);
 	printk(KERN_WARNING "rmem: set_capacity %d %ld\n",npages, SECTORS_PER_PAGE);
-	device.gd->queue = Queue;
-	add_disk(device.gd);
+	// device.gd->queue = Queue;
+	// add_disk(device.gd);
 
 	// sysctl_header = register_sysctl_table(dev_root);
 	// printk(KERN_WARNING "rmem: complete regiester sysctl table\n");
@@ -662,7 +662,7 @@ static void __exit rmem_exit(void)
 	}
 
 
-	del_gendisk(device.gd);
+	//del_gendisk(device.gd);
 	put_disk(device.gd);
 	unregister_blkdev(major_num, "rmem");
 	blk_cleanup_queue(Queue);
