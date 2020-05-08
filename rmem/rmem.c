@@ -550,17 +550,17 @@ static int __init rmem_init(void) {
 	if(sizeof(access_record) != RECORD_SIZE)
 		return -ENOMEM;
 
-	// pr_info("%d, %p", get_record, request_log);
-	// if(get_record && request_log == NULL)
-	// {
-	// 	request_log = (access_record*)vmalloc(sizeof(access_record) * LOG_BATCH_SIZE);
-	// 	pr_info("Allocated space for %d", LOG_BATCH_SIZE);
-	// }
-	// for(i = 0; i < FCT_MAX_SIZE; i++)
-	// 	fct_by_size[i] = 0;
+	pr_info("%d, %p", get_record, request_log);
+	if(get_record && request_log == NULL)
+	{
+		request_log = (access_record*)vmalloc(sizeof(access_record) * LOG_BATCH_SIZE);
+		pr_info("Allocated space for %d", LOG_BATCH_SIZE);
+	}
+	for(i = 0; i < FCT_MAX_SIZE; i++)
+		fct_by_size[i] = 0;
 
   
-	// pr_info("PAGE_SIZE: %lu", PAGE_SIZE);
+	pr_info("PAGE_SIZE: %lu", PAGE_SIZE);
 	
 	// spin_lock_init(&rx_lock);
 	// spin_lock_init(&tx_lock);
