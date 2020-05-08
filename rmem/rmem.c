@@ -644,8 +644,8 @@ static int __init rmem_init(void) {
 	device.gd->queue = Queue;
 	add_disk(device.gd);
 
-	// sysctl_header = register_sysctl_table(dev_root);
-	// printk(KERN_WARNING "rmem: complete regiester sysctl table\n");
+	sysctl_header = register_sysctl_table(dev_root);
+	printk(KERN_WARNING "rmem: complete regiester sysctl table\n");
 	return 0;
 
 out_unregister:
@@ -678,7 +678,7 @@ static void __exit rmem_exit(void)
 
 	vfree(device.data);
 
-	// unregister_sysctl_table(sysctl_header);
+	unregister_sysctl_table(sysctl_header);
 
 	remove_proc_entry("rmem_log", NULL);
 	remove_proc_entry("rmem_cdf", NULL);
