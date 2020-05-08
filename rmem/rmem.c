@@ -674,8 +674,8 @@ static void __exit rmem_exit(void)
 
 	// unregister_sysctl_table(sysctl_header);
 
-	// remove_proc_entry("rmem_log", NULL);
-	// remove_proc_entry("rmem_cdf", NULL);
+	remove_proc_entry("rmem_log", NULL);
+	remove_proc_entry("rmem_cdf", NULL);
 
 	pr_info("rmem: bye!\n");
 }
