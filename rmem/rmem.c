@@ -220,6 +220,7 @@ static void rmem_request(struct request_queue *q)
 	char *buffer, *last_buffer;
 	int write, last_write;
 
+	printk (KERN_NOTICE "rmem_request\n");
 	if(inject_latency){
 		begin = sched_clock();
 		while ((sched_clock() - begin) < latency_ns) {
@@ -227,6 +228,7 @@ static void rmem_request(struct request_queue *q)
 			;
 		}
 	}
+	printk (KERN_NOTICE "starting: blk_fetch_request\n");
 
 	req = blk_fetch_request(q);
 	if(req){
@@ -315,6 +317,7 @@ static void rmem_request(struct request_queue *q)
 				req = blk_fetch_request(q);
 			}
 		}
+		printk (KERN_NOTICE "completed: blk_fetch_request\n");
 		if(get_record)
 		{
 			spin_lock(&log_lock);
@@ -325,6 +328,8 @@ static void rmem_request(struct request_queue *q)
 			spin_unlock(&log_lock);
 		}
 	}
+	printk (KERN_NOTICE "complete if: blk_fetch_request\n");
+
 	if(fct_record_count){
     u64 fct;
     begin = sched_clock();
@@ -334,6 +339,7 @@ static void rmem_request(struct request_queue *q)
 			;
 		}
 	}
+	printk (KERN_NOTICE "complete: rmem_request\n");
 }
 
 /*
