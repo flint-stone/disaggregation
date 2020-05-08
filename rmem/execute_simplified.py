@@ -157,13 +157,13 @@ def setup_rmem(rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, slow
       mount -t tmpfs -o size=%dm tmpfs ./tmpfs/
       fallocate -l %dm ./tmpfs/a.img
 
-      swapoff /mnt2/swapdisk/swap
-      rm -rf /mnt2/swapdisk/swap
-      mkdir -p /mnt2/swapdisk
-      fallocate -l %dM /mnt2/swapdisk/swap
-      chmod 0600 /mnt2/swapdisk/swap
-      mkswap /mnt2/swapdisk/swap
-      swapon /mnt2/swapdisk/swap
+      swapoff /mnt/swapdisk/swap
+      rm -rf /mnt/swapdisk/swap
+      mkdir -p /mnt/swapdisk
+      fallocate -l %dM /mnt/swapdisk/swap
+      chmod 0600 /mnt/swapdisk/swap
+      mkswap /mnt/swapdisk/swap
+      swapon /mnt/swapdisk/swap
     ''' % (rmem_mb, rmem_mb, rmem_mb)
     slaves_run_bash(install_rmem)
   elif bw_gbps == -2: #use rdma
@@ -1380,7 +1380,8 @@ def main():
     prepare_all(opts)
 
   elif opts.task == "init-rmem":
-    setup_rmem(opts.remote_memory, opts.latency, opts.bandwidth, 0, opts.inject, opts.trace, opts.slowdown_cdf_exp, opts.task)
+    opts.bandwidth = -1
+    setup_rmem(opts.remote_memory,  opts.bandwidth, opts.latency, 0, opts.inject, opts.trace, opts.slowdown_cdf_exp, opts.task)
   elif opts.task == "exit-rmem":
     clean_existing_rmem(opts.bandwidth)
 
