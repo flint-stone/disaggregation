@@ -585,6 +585,7 @@ static int __init rmem_init(void) {
 	if (device.data == NULL)
 		return -ENOMEM;
 
+	printk(KERN_WARNING "rmem: npages %d\n", npages);
 	for (i = 0; i < npages; i++) {
 		device.data[i] = kmalloc(PAGE_SIZE, GFP_KERNEL);
 		if (device.data[i] == NULL) {
@@ -600,12 +601,14 @@ static int __init rmem_init(void) {
 			pr_info("rmem: allocated %dth page\n", i);
 	}
 
+	printk(KERN_WARNING "rmem: complete allocation  \n");
 	/*
 	 * Get a request queue.
 	 */
 	Queue = blk_init_queue(rmem_request, &device.lock);
 	if (Queue == NULL)
 		goto out;
+	printk(KERN_WARNING "rmem: initialize queue  \n");
 	blk_queue_physical_block_size(Queue, PAGE_SIZE);
 	blk_queue_logical_block_size(Queue, PAGE_SIZE);
 	blk_queue_io_min(Queue, PAGE_SIZE);
@@ -614,6 +617,7 @@ static int __init rmem_init(void) {
 	 * Get registered.
 	 */
 	major_num = register_blkdev(major_num, "rmem");
+	printk(KERN_WARNING "rmem: block device registered \n");
 	if (major_num < 0) {
 		printk(KERN_WARNING "rmem: unable to get major number\n");
 		goto out;
@@ -630,14 +634,16 @@ static int __init rmem_init(void) {
 	device.gd->private_data = &device;
 	strcpy(device.gd->disk_name, "rmem0");
 	set_capacity(device.gd, npages * SECTORS_PER_PAGE);
+	printk(KERN_WARNING "rmem: set_capacity %d %d\n",npages, SECTORS_PER_PAGE);
 	device.gd->queue = Queue;
 	add_disk(device.gd);
 
 	sysctl_header = register_sysctl_table(dev_root);
-
+	printk(KERN_WARNING "rmem: complete regiester sysctl table\n");
 	return 0;
 
 out_unregister:
+	printk(KERN_WARNING "rmem: unregister \n");
 	unregister_blkdev(major_num, "rmem");
 out:
 	for (i = 0; i < npages; i++)
