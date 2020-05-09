@@ -1,4 +1,5 @@
 obj-m := rmem.o
+#obj-m := hello.o
 KDIR := /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
 
