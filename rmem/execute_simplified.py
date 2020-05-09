@@ -1382,7 +1382,6 @@ def main():
     prepare_all(opts)
 
   elif opts.task == "init-rmem":
-    opts.bandwidth = -1
     setup_rmem(opts.remote_memory,  opts.bandwidth, opts.latency, 0, opts.inject, opts.trace, opts.slowdown_cdf_exp, opts.task)
   elif opts.task == "exit-rmem":
     clean_existing_rmem(opts.bandwidth)
