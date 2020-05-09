@@ -11,7 +11,8 @@ def banner(content):
 def run_subprocess(args):
   popen = subprocess.Popen(args, stdout=subprocess.PIPE)
   popen.wait()
-  return output = popen.stdout.read()
+  output = popen.stdout.read()
+  return output
 
 
 def run(cmd):
