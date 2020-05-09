@@ -561,7 +561,9 @@ class ExpResult:
 def run_dummy_task():
   print(" run dummy task ")
   #run("bash cgexec -g memory,cpu:swap/foo /mydata/lexu/disaggregation/memeater/memeater")
-  run("bash /mydata/lexu/disaggregation/memeater/memeater")
+  #run("bash /mydata/lexu/disaggregation/memeater/memeater")
+  output = run_subprocess( "/mydata/lexu/disaggregation/memeater/memeater")
+  print(output)
 
 def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, slowdown_cdf, profile_io, dstat_log, no_sit, spark_mem, profile = False, memcached_size=22):
   global memcached_kill_loadgen_on

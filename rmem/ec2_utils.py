@@ -1,11 +1,18 @@
 import os
 import commands
 import threading
+import subprocess
 
 bash_run_counter = 0
 
 def banner(content):
   print "+++++++++++++++++++ " + content + " +++++++++++++++++++"
+
+def run_subprocess(args):
+  popen = subprocess.Popen(args, stdout=subprocess.PIPE)
+  popen.wait()
+  return output = popen.stdout.read()
+
 
 def run(cmd):
   print "###Running local cmd:" + cmd
