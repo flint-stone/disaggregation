@@ -2229,3 +2229,143 @@ Conf: True 5 60 22.09  0 Result: 1605.47656798
 ================== Started exp at:2015-09-18 18:24:42.467188 ==================
 Argument ['execute.py', '--task', 'wordcount-hadoop']
 Conf: False 5 40 22.09 wordcount-hadoop 0 Result: 1603.41342783
+
+
+
+
+================== Started exp at:2020-05-08 23:45:02.049569 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask']
+Conf: False 5 40 22.09  0 False 25 Result: 0.00208306312561
+
+
+
+
+================== Started exp at:2020-05-08 23:50:40.041347 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask']
+Conf: False 5 40 22.09  0 False 25 Result: 0.00454902648926
+
+
+
+
+================== Started exp at:2020-05-08 23:54:18.448933 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask']
+Conf: False 5 40 22.09  0 False 25 Result: 0.00368094444275
+
+
+
+
+================== Started exp at:2020-05-09 00:15:43.365187 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask']
+Conf: False 5 40 22.09  0 False 25 Result: 434.084115982
+
+
+
+
+================== Started exp at:2020-05-09 00:41:48.070234 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--latency', '5']
+Conf: False 5 40 22.09  0 False 25 Result: 434.083053827
+
+
+
+
+================== Started exp at:2020-05-09 00:50:49.633027 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--bandwidth', '10']
+Conf: False 5 10.0 22.09  0 False 25 Result: 441.482815981
+
+
+
+
+================== Started exp at:2020-05-09 00:58:19.697705 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--bandwidth', '80']
+Conf: False 5 80.0 22.09  0 False 25 Result: 424.160748005
+
+
+
+
+================== Started exp at:2020-05-09 01:06:37.690565 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--remote-memory', '40']
+Conf: False 5 40 40.0  0 False 25 Result: 394.419014931
+
+
+
+
+================== Started exp at:2020-05-09 01:12:48.698723 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--remote-memory', '80']
+Conf: False 5 40 80.0  0 False 25 Result: 322.985048771
+
+
+
+
+================== Started exp at:2020-05-09 01:21:00.406172 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--latency', '100']
+Conf: False 100 40 22.09  0 False 25 Result: 432.19504714
+
+
+
+
+================== Started exp at:2020-05-09 01:49:06.457387 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--bandwidth', '-1']
+Conf: False 5 -1.0 22.09  0 False 25 Result: 230.378351927
+
+
+
+
+================== Started exp at:2020-05-09 01:53:59.730843 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--bandwidth', '-2']
+Conf: False 5 -2.0 22.09  0 False 25 Result: 250.901558161
+
+
+
+
+================== Started exp at:2020-05-09 01:59:17.442358 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--bandwidth', '100']
+Conf: False 5 100.0 22.09  0 False 25 Result: 244.858034134
+
+
+
+
+================== Started exp at:2020-05-09 02:04:54.135158 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask']
+Conf: False 5 40 22.09  0 False 25 Result: 248.396474123
+
+
+
+
+================== Started exp at:2020-05-09 02:10:11.145506 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '-l', '50']
+Conf: False 50 40 22.09  0 False 25 Result: 248.132576942
+
+
+
+
+================== Started exp at:2020-05-09 02:16:31.808141 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--remote-memory', '80', '-l', '20']
+Conf: False 20 40 80.0  0 False 25 Result: 205.938055992
+
+
+
+
+================== Started exp at:2020-05-09 02:51:51.428175 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--remote-memory', '20']
+Conf: False 5 40 20.0  0 False 25 Result: 241.992697001
+
+
+
+
+================== Started exp at:2020-05-09 02:57:17.933944 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--remote-memory', '80']
+Conf: False 5 40 80.0  0 False 25 Result: 282.672896147
+
+
+
+
+================== Started exp at:2020-05-09 03:03:20.051478 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--remote-memory', '80', '-l', '10']
+Conf: False 10 40 80.0  0 False 25 Result: 287.157880783
+
+
+
+
+================== Started exp at:2020-05-09 03:09:18.997942 ==================
+Argument ['execute_simplified.py', '--task', 'dummytask', '--remote-memory', '80', '-l', '50']
+Conf: False 50 40 80.0  0 False 25 Result: 291.535921812

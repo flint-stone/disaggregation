@@ -2028,3 +2028,115 @@ ExpStart: 2015-09-19 05:30:45.162465  Task: graphlab  RmemGb: 22.09  BwGbps: 60 
 
 
 
+
+
+
+
+
+
+
+
+ExpStart: 2020-05-08 23:44:50.814569  Task: dummytask  RmemGb: 22.09  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 0.00208306312561  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-08 23:50:29.931605  Task: dummytask  RmemGb: 22.09  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 0.00454902648926  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-08 23:54:08.005196  Task: dummytask  RmemGb: 22.09  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 0.00368094444275  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 00:08:13.130534  Task: dummytask  RmemGb: 22.09  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 434.084115982  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+
+
+
+
+ExpStart: 2020-05-09 00:34:17.363733  Task: dummytask  RmemGb: 22.09  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 434.083053827  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 00:43:12.799855  Task: dummytask  RmemGb: 22.09  BwGbps: 10.0  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 441.482815981  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 00:50:59.679641  Task: dummytask  RmemGb: 22.09  BwGbps: 80.0  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 424.160748005  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 00:59:42.114479  Task: dummytask  RmemGb: 40.0  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 394.419014931  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 01:06:52.029655  Task: dummytask  RmemGb: 80.0  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 322.985048771  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 01:13:31.951454  Task: dummytask  RmemGb: 22.09  BwGbps: 40  LatencyUs: 100  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 432.19504714  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+
+
+
+
+ExpStart: 2020-05-09 01:45:00.343615  Task: dummytask  RmemGb: 22.09  BwGbps: -1.0  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 230.378351927  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads:   Writes:   TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 01:49:42.544564  Task: dummytask  RmemGb: 22.09  BwGbps: -2.0  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 250.901558161  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads:   Writes:   TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 01:54:55.651882  Task: dummytask  RmemGb: 22.09  BwGbps: 100.0  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 244.858034134  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 02:00:29.929844  Task: dummytask  RmemGb: 22.09  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 248.396474123  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 02:05:48.484953  Task: dummytask  RmemGb: 22.09  BwGbps: 40  LatencyUs: 50  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 248.132576942  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 02:12:31.105695  Task: dummytask  RmemGb: 80.0  BwGbps: 40  LatencyUs: 20  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 205.938055992  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [0]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 02:47:34.980045  Task: dummytask  RmemGb: 20.0  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 241.992697001  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [21474836480]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 02:52:01.372788  Task: dummytask  RmemGb: 80.0  BwGbps: 40  LatencyUs: 5  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 282.672896147  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [40960]  Writes: [85899374592]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 02:57:58.604422  Task: dummytask  RmemGb: 80.0  BwGbps: 40  LatencyUs: 10  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 287.157880783  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [0]  Writes: [86489956352]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
+
+
+
+
+ExpStart: 2020-05-09 03:03:54.132986  Task: dummytask  RmemGb: 80.0  BwGbps: 40  LatencyUs: 50  E2eLatencyUs: 0  Inject: False  Trace: False  SldCdf:   MinRamGb: -1.0  Runtime: 291.535921812  MemCachedLatencyUs: -1.0  MemCachedThroughput: -1  StormLatencyUs: -1  StormThroughput: -1  ESThroughput: -1  Reads: [270336]  Writes: [86282911744]  TraceDir:   IOTrace:   Overflow:   NoSIT: False  SparkMem: 25
