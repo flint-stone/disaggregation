@@ -619,9 +619,7 @@ def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, s
     clean_existing_rmem(bw_gbps)
 
     setup_rmem(rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, slowdown_cdf, task)
-
-
-  master = get_master()
+ 
 
   banner("Running app")
   if task == "dummytask":
@@ -631,91 +629,93 @@ def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, s
     run_dummy_task();
     print("complete nom nom nom...")
     app_end()
-  elif task == "wordcount" or task == "terasort-spark":
-    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresult")
-    app_start()
-    if task == "wordcount":
-      run("/mydata/lexu/spark/bin/spark-submit --class \"WordCount\" --master \"spark://{0}:7077\" --conf \"spark.executor.memory={1}m\" --conf \"spark.cores.max={2}\" \"/mydata/lexu/disaggregation/apps/WordCount_spark/target/scala-2.10/simple-project_2.10-1.0.jar\" \"hdfs://{0}:9000/wiki/\" \"hdfs://{0}:9000/dfsresult\"".format(master, int(spark_mem * 1024), opts.spark_cores_max) )
-    elif task == "terasort-spark":
-      run("/mydata/lexu/spark/bin/spark-submit --class \"TeraSort\" --master \"spark://%s:7077\" --conf \"spark.executor.memory=%sm\" --conf \"spark.cores.max=%s\" \"/mydata/lexu/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" \"/sortinput/\" \"/dfsresult\"" % (master, int(spark_mem * 1024), opts.spark_cores_max) )
-    app_end()
+  else:
+    master = get_master()
+    elif task == "wordcount" or task == "terasort-spark":
+      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresult")
+      app_start()
+      if task == "wordcount":
+        run("/mydata/lexu/spark/bin/spark-submit --class \"WordCount\" --master \"spark://{0}:7077\" --conf \"spark.executor.memory={1}m\" --conf \"spark.cores.max={2}\" \"/mydata/lexu/disaggregation/apps/WordCount_spark/target/scala-2.10/simple-project_2.10-1.0.jar\" \"hdfs://{0}:9000/wiki/\" \"hdfs://{0}:9000/dfsresult\"".format(master, int(spark_mem * 1024), opts.spark_cores_max) )
+      elif task == "terasort-spark":
+        run("/mydata/lexu/spark/bin/spark-submit --class \"TeraSort\" --master \"spark://%s:7077\" --conf \"spark.executor.memory=%sm\" --conf \"spark.cores.max=%s\" \"/mydata/lexu/disaggregation/apps/spark_terasort/target/scala-2.10/terasort_2.10-1.0.jar\" \"/sortinput/\" \"/dfsresult\"" % (master, int(spark_mem * 1024), opts.spark_cores_max) )
+      app_end()
 
-  elif task == "bdb":
-    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresults")
-    app_start() 
-    query = get_bdb_query("3a") # 2a or 3a
-    run("/mydata/lexu/spark/bin/spark-submit --class \"SparkSql\" --master \"spark://{0}:7077\" --conf \"spark.executor.memory={1}m\" --conf \"spark.cores.max={2}\" \"/mydata/lexu/disaggregation/apps/Spark_Sql/target/scala-2.10/spark-sql_2.10-1.0.jar\" \"hdfs://{0}:9000/uservisits\" \"hdfs://{0}:9000/rankings\" \"hdfs://{0}:9000/dfsresults\" \"{3}\"".format(master, int(spark_mem * 1024), opts.spark_cores_max, query) )
-    app_end()
+    elif task == "bdb":
+      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresults")
+      app_start() 
+      query = get_bdb_query("3a") # 2a or 3a
+      run("/mydata/lexu/spark/bin/spark-submit --class \"SparkSql\" --master \"spark://{0}:7077\" --conf \"spark.executor.memory={1}m\" --conf \"spark.cores.max={2}\" \"/mydata/lexu/disaggregation/apps/Spark_Sql/target/scala-2.10/spark-sql_2.10-1.0.jar\" \"hdfs://{0}:9000/uservisits\" \"hdfs://{0}:9000/rankings\" \"hdfs://{0}:9000/dfsresults\" \"{3}\"".format(master, int(spark_mem * 1024), opts.spark_cores_max, query) )
+      app_end()
 
-  elif task == "terasort" or task == "wordcount-hadoop":
-    run("/mydata/lexu/ephemeral-hdfs/bin/start-mapred.sh")
-    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /dfsresult")
-    app_start()
-    if task == "terasort":
-      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop jar /mydata/lexu/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar terasort -Dmapred.map.tasks=20 -Dmapred.reduce.tasks=10 -Dmapreduce.map.java.opts=-Xmx25000 -Dmapreduce.reduce.java.opts=-Xmx25000 -Dmapreduce.map.memory.mb=26000 -Dmapreduce.reduce.memory.mb=26000 -Dmapred.reduce.slowstart.completed.maps=1.0 /sortinput /dfsresult")
-    else:
-      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop jar /mydata/lexu/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar wordcount -Dmapred.map.tasks=10 -Dmapred.reduce.tasks=5 -Dmapreduce.map.java.opts=-Xmx8000 -Dmapreduce.reduce.java.opts=-Xmx7000 -Dmapreduce.map.memory.mb=8000 -Dmapreduce.reduce.memory.mb=7000 -Dmapred.reduce.slowstart.completed.maps=1.0 /wiki /dfsresult")
-    run("/mydata/lexu/ephemeral-hdfs/bin/stop-mapred.sh")
-    app_end()
-    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /mnt")
-    run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /hadoopoutput")
-    slaves_run("rm -rf /mnt/ephemeral-hdfs/taskTracker/root/jobcache/*; rm -rf /mnt2/ephemeral-hdfs/taskTracker/root/jobcache/*; rm -rf /mnt99/taskTracker/root/jobcache/*; rm -rf /mnt/ephemeral-hdfs/mapred/local/taskTracker/root/jobcache/*; rm -rf /mnt2/ephemeral-hdfs/mapred/local/taskTracker/root/jobcache/*;  rm -rf /mnt99/mapred/local/taskTracker/root/jobcache/*")
+    elif task == "terasort" or task == "wordcount-hadoop":
+      run("/mydata/lexu/ephemeral-hdfs/bin/start-mapred.sh")
+      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /dfsresult")
+      app_start()
+      if task == "terasort":
+        run("/mydata/lexu/ephemeral-hdfs/bin/hadoop jar /mydata/lexu/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar terasort -Dmapred.map.tasks=20 -Dmapred.reduce.tasks=10 -Dmapreduce.map.java.opts=-Xmx25000 -Dmapreduce.reduce.java.opts=-Xmx25000 -Dmapreduce.map.memory.mb=26000 -Dmapreduce.reduce.memory.mb=26000 -Dmapred.reduce.slowstart.completed.maps=1.0 /sortinput /dfsresult")
+      else:
+        run("/mydata/lexu/ephemeral-hdfs/bin/hadoop jar /mydata/lexu/disaggregation/apps/hadoop_terasort/hadoop-examples-1.0.4.jar wordcount -Dmapred.map.tasks=10 -Dmapred.reduce.tasks=5 -Dmapreduce.map.java.opts=-Xmx8000 -Dmapreduce.reduce.java.opts=-Xmx7000 -Dmapreduce.map.memory.mb=8000 -Dmapreduce.reduce.memory.mb=7000 -Dmapred.reduce.slowstart.completed.maps=1.0 /wiki /dfsresult")
+      run("/mydata/lexu/ephemeral-hdfs/bin/stop-mapred.sh")
+      app_end()
+      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /mnt")
+      run("/mydata/lexu/ephemeral-hdfs/bin/hadoop dfs -rmr /hadoopoutput")
+      slaves_run("rm -rf /mnt/ephemeral-hdfs/taskTracker/root/jobcache/*; rm -rf /mnt2/ephemeral-hdfs/taskTracker/root/jobcache/*; rm -rf /mnt99/taskTracker/root/jobcache/*; rm -rf /mnt/ephemeral-hdfs/mapred/local/taskTracker/root/jobcache/*; rm -rf /mnt2/ephemeral-hdfs/mapred/local/taskTracker/root/jobcache/*;  rm -rf /mnt99/mapred/local/taskTracker/root/jobcache/*")
 
-  elif task == "graphlab":
-    all_run("rm -rf /mnt2/netflix_m/out")
-    app_start()
-    run("mpiexec -n 5 -hostfile /mydata/lexu/spark-ec2/slaves /mydata/lexu/disaggregation/apps/collaborative_filtering/als --matrix /mnt2/netflix_m/ --max_iter=3 --ncpus=6 --minval=1 --maxval=5 --predictions=/mnt2/netflix_m/out/out")
-    app_end()
+    elif task == "graphlab":
+      all_run("rm -rf /mnt2/netflix_m/out")
+      app_start()
+      run("mpiexec -n 5 -hostfile /mydata/lexu/spark-ec2/slaves /mydata/lexu/disaggregation/apps/collaborative_filtering/als --matrix /mnt2/netflix_m/ --max_iter=3 --ncpus=6 --minval=1 --maxval=5 --predictions=/mnt2/netflix_m/out/out")
+      app_end()
 
-  elif task == "memcached" or task == "memcached-local":
-    app_start()
-    slaves_run("memcached -d -m 26000 -u root")
-    set_memcached_size(memcached_size)
-    run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/disaggregation/apps/memcached/jars; /mydata/lexu/spark-ec2/copy-dir /mydata/lexu/disaggregation/apps/memcached/workloads")
-    thrd = threading.Thread(target=memcached_kill_loadgen, args=(time.time() + 25 * 60,))
-    thrd.start()
-    print "Loadgen started at %s" % time.strftime("%c")
-    slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb_local.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -load -P workloads/running")
-    print "Loadgen finished at %s" % time.strftime("%c")
-    memcached_kill_loadgen_on = False
-    thrd.join()
-    all_run("rm /mydata/lexu/disaggregation/apps/memcached/results.txt")
-    if task == "memcached":
-      slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -t -P workloads/running")
-    elif task == "memcached-local":
-      slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb_local.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -t -P workloads/running")
+    elif task == "memcached" or task == "memcached-local":
+      app_start()
+      slaves_run("memcached -d -m 26000 -u root")
+      set_memcached_size(memcached_size)
+      run("/mydata/lexu/spark-ec2/copy-dir /mydata/lexu/disaggregation/apps/memcached/jars; /mydata/lexu/spark-ec2/copy-dir /mydata/lexu/disaggregation/apps/memcached/workloads")
+      thrd = threading.Thread(target=memcached_kill_loadgen, args=(time.time() + 25 * 60,))
+      thrd.start()
+      print "Loadgen started at %s" % time.strftime("%c")
+      slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb_local.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -load -P workloads/running")
+      print "Loadgen finished at %s" % time.strftime("%c")
+      memcached_kill_loadgen_on = False
+      thrd.join()
+      all_run("rm /mydata/lexu/disaggregation/apps/memcached/results.txt")
+      if task == "memcached":
+        slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -t -P workloads/running")
+      elif task == "memcached-local":
+        slaves_run_parallel("cd /mydata/lexu/disaggregation/apps/memcached;java -cp jars/ycsb_local.jar:jars/spymemcached-2.7.1.jar:jars/slf4j-simple-1.6.1.jar:jars/slf4j-api-1.6.1.jar  com.yahoo.ycsb.LoadGenerator -t -P workloads/running")
 
-    (result.memcached_latency_us, result.memcached_throughput) = slaves_get_memcached_avg_latency()
-    slaves_run("killall memcached")
-    app_end()
+      (result.memcached_latency_us, result.memcached_throughput) = slaves_get_memcached_avg_latency()
+      slaves_run("killall memcached")
+      app_end()
 
-  elif task == "storm":
-    storm_start()
-    time.sleep(10)
-    run("/mydata/lexu/apache-storm-0.9.5/bin/storm kill test")
-    time.sleep(90)
-    app_start()
-    run("/mydata/lexu/apache-storm-0.9.5/bin/storm jar /mydata/lexu/disaggregation/apps/storm/storm-starter-topologies-0.9.5.jar storm.starter.WordCountTopology test")
-    time.sleep(1800)
-    run("/mydata/lexu/apache-storm-0.9.5/bin/storm kill test")
-    time.sleep(20)
-    storm_stop()
-    app_end()
-    get_storm_trace()
-    (latency, throughput) = get_storm_perf()
-    result.storm_latency_us = latency
-    result.storm_throughput = throughput
+    elif task == "storm":
+      storm_start()
+      time.sleep(10)
+      run("/mydata/lexu/apache-storm-0.9.5/bin/storm kill test")
+      time.sleep(90)
+      app_start()
+      run("/mydata/lexu/apache-storm-0.9.5/bin/storm jar /mydata/lexu/disaggregation/apps/storm/storm-starter-topologies-0.9.5.jar storm.starter.WordCountTopology test")
+      time.sleep(1800)
+      run("/mydata/lexu/apache-storm-0.9.5/bin/storm kill test")
+      time.sleep(20)
+      storm_stop()
+      app_end()
+      get_storm_trace()
+      (latency, throughput) = get_storm_perf()
+      result.storm_latency_us = latency
+      result.storm_throughput = throughput
 
-  elif task == "timely":
-    app_start()
-    timely_run()
-    app_end()
+    elif task == "timely":
+      app_start()
+      timely_run()
+      app_end()
 
-  elif task == "elasticsearch":
-    app_start()
-    elasticsearch_run()
-    app_end()
-    result.es_throughput = get_es_throughput()
+    elif task == "elasticsearch":
+      app_start()
+      elasticsearch_run()
+      app_end()
+      result.es_throughput = get_es_throughput()
   
 
   if bw_gbps >= 0 and not no_sit:
