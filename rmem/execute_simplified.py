@@ -634,7 +634,7 @@ def run_exp(task, rmem_gb, bw_gbps, latency_us, e2e_latency_us, inject, trace, s
     app_end()
   else:
     master = get_master()
-    elif task == "wordcount" or task == "terasort-spark":
+    if task == "wordcount" or task == "terasort-spark":
       run("/mydata/lexu/ephemeral-hdfs/bin/hadoop fs -rmr /dfsresult")
       app_start()
       if task == "wordcount":
